@@ -101,7 +101,7 @@ uv run industrial-monitor export-landing</code></pre></li>
       </ol>
       <p>The MQTT path needs a broker: <code>docker compose up -d</code> starts Mosquitto on 127.0.0.1:1883. Run <code>uv run industrial-monitor monitor</code> in one terminal and <code>uv run industrial-monitor simulate</code> in another. A Claude run needs <code>ANTHROPIC_API_KEY</code> and the flag <code>--model claude</code> on <code>ask</code> or <code>evaluate-assistant</code>.</p>
       <aside class="note">
-        <p>Steps 1 to 4 need no broker, sensor or API key. <code>evaluate-detector</code> ran in 9.5 seconds from a clean clone.</p>
+        <p>Steps 1 to 4 need no broker, sensor or API key.</p>
       </aside>
     </section>
 

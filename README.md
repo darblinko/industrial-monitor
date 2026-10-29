@@ -206,7 +206,7 @@ fan-2    alarm     imbalance             90     8.90   39.4
 Regenerate the result files and the chart data:
 
 ```bash
-uv run industrial-monitor evaluate-detector   # about 10 s, writes results/detection.json
+uv run industrial-monitor evaluate-detector   # writes results/detection.json
 uv run industrial-monitor evaluate-assistant  # writes results/assistant-eval-fake.json
 uv run industrial-monitor export-landing      # writes docs/data.json
 ```
