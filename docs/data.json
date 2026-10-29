@@ -1,7 +1,7 @@
 {
   "meta": {
     "repo": "industrial-monitor",
-    "revision": "96d70e4",
+    "revision": "b2f7ba5",
     "measured": "2026-10-28"
   },
   "charts": [
@@ -852,7 +852,7 @@
       "name": "pump-3-spectrum",
       "type": "line",
       "title": "Pump 3 acceleration spectrum, healthy and bearing-wear windows",
-      "subtitle": "Peak amplitude in g per 5 Hz bin; resonance 450 Hz",
+      "subtitle": "Windows 60 and 159 (severity 1.00); peak g per 5 Hz bin; resonance 450 Hz",
       "source": "industrial-monitor export-landing (demo plant, seed 7)",
       "alt": "Largest bin in the faulty window is 415 Hz at 0.149 g, against 0.001 g in the healthy window.",
       "format": "decimal3",
@@ -980,7 +980,7 @@
       ],
       "series": [
         {
-          "name": "window 60, healthy",
+          "name": "healthy",
           "values": [
             0.00283,
             0.00197,
@@ -1105,7 +1105,7 @@
           ]
         },
         {
-          "name": "window 159, bearing wear 1.00",
+          "name": "bearing wear",
           "values": [
             0.00155,
             0.00355,
@@ -1235,7 +1235,7 @@
       "name": "pump-3-envelope",
       "type": "line",
       "title": "Pump 3 envelope spectrum, healthy and bearing-wear windows",
-      "subtitle": "Envelope of the 300 to 600 Hz band, peak in g per 2.5 Hz bin; BPFO 83.5 Hz",
+      "subtitle": "Windows 60 and 159 (severity 1.00); band 300 to 600 Hz; peak g per 2.5 Hz bin; BPFO 83.5 Hz",
       "source": "industrial-monitor export-landing (demo plant, seed 7)",
       "alt": "Largest bin in the faulty window is 82.5 Hz at 0.200 g, against 0.001 g in the healthy window.",
       "format": "decimal3",
@@ -1363,7 +1363,7 @@
       ],
       "series": [
         {
-          "name": "window 60, healthy",
+          "name": "healthy",
           "values": [
             0.00126,
             0.002,
@@ -1488,7 +1488,7 @@
           ]
         },
         {
-          "name": "window 159, bearing wear 1.00",
+          "name": "bearing wear",
           "values": [
             0.00855,
             0.01292,
