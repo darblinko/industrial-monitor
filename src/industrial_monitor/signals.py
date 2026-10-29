@@ -38,15 +38,17 @@ class Condition:
 def _ringing_impacts(
     times: np.ndarray, impact_times: np.ndarray, amplitudes: np.ndarray, resonance_hz: float
 ) -> np.ndarray:
+    """Sum of exponentially decaying resonance responses. Assumes uniform times from 0."""
     decay_s = 0.002
+    step = times[1] - times[0]
+    span = int(10 * decay_s / step) + 1
     signal = np.zeros_like(times)
     for start, amplitude in zip(impact_times, amplitudes, strict=True):
-        local = times - start
-        active = (local >= 0) & (local < 10 * decay_s)
-        signal[active] += (
-            amplitude
-            * np.exp(-local[active] / decay_s)
-            * np.sin(2 * np.pi * resonance_hz * local[active])
+        first = max(int(np.ceil(start / step)), 0)
+        last = min(first + span, len(times))
+        local = times[first:last] - start
+        signal[first:last] += (
+            amplitude * np.exp(-local / decay_s) * np.sin(2 * np.pi * resonance_hz * local)
         )
     return signal
 
