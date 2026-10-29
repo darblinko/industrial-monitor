@@ -574,7 +574,7 @@
       "supported_sentences": 4,
       "expected_terms_found": false,
       "question": "Why does the monitor wait for two of three windows before it alarms?",
-      "answer": "The monitor raises an alarm when at least 2 of the last 3 windows exceed the threshold, and clears it when fewer than 2 of the last 3 do [VG-6]. The cost of the persistence rule is delay: a fault that is just above the threshold takes at least two windows to alarm, and an intermittent one may not alarm at all [VG-6]. An unclassified alarm that clears within a few windows needs no action [VG-4]. If it persists for a day, take a portable measurement, because a bearing defect can show as impulsiveness before its envelope peaks are distinct [VG-4].",
+      "answer": "The monitor raises an alarm when at least 2 of the last 3 windows exceed the threshold, and clears it when fewer than 2 of the last 3 do [VG-6]. The cost of the persistence rule is delay: a fault that is slightly above the threshold takes at least two windows to alarm, and an intermittent one may not alarm at all [VG-6]. An unclassified alarm that clears within a few windows needs no action [VG-4]. If it persists for a day, take a portable measurement, because a bearing defect can show as impulsiveness before its envelope peaks are distinct [VG-4].",
       "tool_calls": [
         {
           "name": "search_manual",

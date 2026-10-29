@@ -4,7 +4,7 @@ This guide is synthetic. It was written for the industrial-monitor project. It d
 
 ## [VG-1] Reading a monitor alarm
 
-The monitor learns a baseline for each machine from its first 40 acquisition windows and then scores every new window against it. Each channel produces a z-score: the deviation from the baseline median divided by a robust spread. The channels and the fault hypothesis each one indicates are: 1x amplitude for imbalance, bearing envelope for bearing wear, housing temperature for temperature drift, and kurtosis for an unclassified impulsive fault. When several channels exceed the threshold, a specific channel takes precedence over kurtosis. The hypothesis names the most likely fault class. It is a starting point for inspection, not a diagnosis.
+The monitor learns a baseline for each machine from its first 40 acquisition windows and then scores every new window against it. Each channel produces a z-score: the deviation from the baseline median divided by a robust spread. The channels and the fault hypothesis each one indicates are: 1x amplitude for imbalance, bearing envelope for bearing wear, housing temperature for temperature drift, and kurtosis for an unclassified impulsive fault. When several channels exceed the threshold, a specific channel takes precedence over kurtosis. The hypothesis names the most likely fault class. It is a starting point for inspection and does not replace a diagnosis.
 
 ## [VG-2] Envelope analysis for bearing defects
 
@@ -24,7 +24,7 @@ The three common running-speed faults differ in their spectra. Imbalance produce
 
 ## [VG-6] Alarm persistence and false alarms
 
-A single window above the threshold does not raise an alarm. The monitor raises an alarm when at least 2 of the last 3 windows exceed the threshold, and clears it when fewer than 2 of the last 3 do. The persistence rule suppresses isolated process transients. The threshold is calibrated on simulated healthy machines so that about 1 window in 100 raises an alarm on a healthy machine. The cost of the persistence rule is delay: a fault that is just above the threshold takes at least two windows to alarm, and an intermittent one may not alarm at all.
+A single window above the threshold does not raise an alarm. The monitor raises an alarm when at least 2 of the last 3 windows exceed the threshold, and clears it when fewer than 2 of the last 3 do. The persistence rule suppresses isolated process transients. The threshold is calibrated on simulated healthy machines so that about 1 window in 100 raises an alarm on a healthy machine. The cost of the persistence rule is delay: a fault that is slightly above the threshold takes at least two windows to alarm, and an intermittent one may not alarm at all.
 
 ## [VG-7] Sensor checks before maintenance action
 

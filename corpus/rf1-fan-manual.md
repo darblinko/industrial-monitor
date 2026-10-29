@@ -28,7 +28,7 @@ Grease each pillow block every 4000 running hours with 10 g of lithium complex g
 
 ## [RF-4.1] Imbalance
 
-Imbalance on the RF-1 shows as high radial vibration at shaft frequency (1x, 16.5 Hz). The most common cause is uneven dust or product build-up on the impeller blades. Other causes are blade erosion, a lost balance weight, and a cracked or distorted blade. To check: isolate the fan under RF-6.1, open the inspection door, and inspect the blades for deposits, erosion, cracks and missing balance weights. Clean the blades evenly, including the back plate. If vibration stays above the alert limit after cleaning, field balance the impeller under RF-4.2. A fan above the 7.1 mm/s trip limit is stopped before inspection, not after.
+Imbalance on the RF-1 shows as high radial vibration at shaft frequency (1x, 16.5 Hz). The most common cause is uneven dust or product build-up on the impeller blades. Other causes are blade erosion, a lost balance weight, and a cracked or distorted blade. To check: isolate the fan under RF-6.1, open the inspection door, and inspect the blades for deposits, erosion, cracks and missing balance weights. Clean the blades evenly, including the back plate. If vibration stays above the alert limit after cleaning, field balance the impeller under RF-4.2. A fan above the 7.1 mm/s trip limit is stopped before it is inspected.
 
 ## [RF-4.2] Field balancing
 
