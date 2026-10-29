@@ -1,0 +1,669 @@
+{
+  "model": "fake-extractive",
+  "summary": {
+    "questions": 20,
+    "answerable": 17,
+    "unanswerable": 3,
+    "citation_precision": 0.6666666666666666,
+    "citation_recall": 0.6,
+    "citation_validity": 1.0,
+    "sentence_coverage": 1.0,
+    "lexical_support": 1.0,
+    "expected_terms_rate": 0.7647058823529411,
+    "unanswerable_declined": 0.6666666666666666,
+    "answerable_declined": 0.0,
+    "refusals": 0,
+    "incomplete_runs": 0
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-3.2",
+        "RP-3.1",
+        "VG-2",
+        "VG-3",
+        "VG-7"
+      ],
+      "cited": [
+        "RP-3.2",
+        "RP-3.1"
+      ],
+      "cited_machines": [
+        "pump-3"
+      ],
+      "relevant_cited": 2,
+      "invalid_citations": [],
+      "sentences": 6,
+      "cited_sentences": 6,
+      "supported_sentences": 6,
+      "expected_terms_found": true,
+      "question": "Why is pump 3 alarming and what do I check?",
+      "answer": "pump-3 (RP-1 centrifugal pump) is in alarm since window 71 with hypothesis bearing wear; the kurtosis channel is at z = 20.77 against its baseline [status:pump-3]. Vibration velocity is 2.29 mm/s RMS and housing temperature is 41.88 C [status:pump-3]. A bearing defect indication means the envelope spectrum shows peaks at a bearing defect frequency and its harmonics above the baseline [RP-3.2]. For an outer race indication at BPFO, take these steps [RP-3.2]. Its defect frequencies as multiples of shaft speed are: outer race (BPFO) 3.375, inner race (BPFI) 5.625, ball spin (BSF) 1.875 and cage (FTF) 0.375 [RP-3.1]. An outer race defect produces envelope spectrum peaks at 83.5 Hz and its harmonics at 167 Hz and 250.6 Hz [RP-3.1].",
+      "tool_calls": [
+        {
+          "name": "get_machine_status",
+          "arguments": {
+            "machine_id": "pump-3"
+          },
+          "is_error": false
+        },
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "RP-1 centrifugal pump responding to a bearing defect indication outer race Why is pump 3 alarming and what do I check?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q02",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-5.1",
+        "RP-2.2",
+        "RP-3.3",
+        "VG-8"
+      ],
+      "cited": [
+        "RP-5.1",
+        "VG-1"
+      ],
+      "cited_machines": [
+        "pump-4"
+      ],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 6,
+      "cited_sentences": 6,
+      "supported_sentences": 6,
+      "expected_terms_found": true,
+      "question": "Pump 4 is in alarm. What is the likely cause and what should I inspect?",
+      "answer": "pump-4 (RP-1 centrifugal pump) is in alarm since window 92 with hypothesis temperature drift; the housing temperature channel is at z = 43.16 against its baseline [status:pump-4]. Vibration velocity is 2.16 mm/s RMS and housing temperature is 59.04 C [status:pump-4]. When the housing temperature exceeds the alert in RP-2.2, check in this order [RP-5.1]. Five, cooling: check that the housing is not lagged or blocked and that ambient temperature is normal [RP-5.1]. The channels and the fault hypothesis each one indicates are: 1x amplitude for imbalance, bearing envelope for bearing wear, housing temperature for temperature drift, and kurtosis for an unclassified impulsive fault [VG-1]. The hypothesis names the most likely fault class [VG-1].",
+      "tool_calls": [
+        {
+          "name": "get_machine_status",
+          "arguments": {
+            "machine_id": "pump-4"
+          },
+          "is_error": false
+        },
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "RP-1 centrifugal pump elevated bearing housing temperature Pump 4 is in alarm. What is the likely cause and what should I inspect?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RF-4.1",
+        "RF-2.1",
+        "VG-5"
+      ],
+      "cited": [
+        "RF-4.1",
+        "RF-3.3"
+      ],
+      "cited_machines": [
+        "fan-2"
+      ],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 6,
+      "cited_sentences": 6,
+      "supported_sentences": 6,
+      "expected_terms_found": false,
+      "question": "Fan 2 has an alarm. What does it mean and can it keep running?",
+      "answer": "fan-2 (RF-1 centrifugal fan) is in alarm since window 90 with hypothesis imbalance; the 1x amplitude channel is at z = 10.7 against its baseline [status:fan-2]. Vibration velocity is 8.9 mm/s RMS and housing temperature is 39.38 C [status:fan-2]. Imbalance on the RF-1 shows as high radial vibration at shaft frequency (1x, 16.5 Hz) [RF-4.1]. To check: isolate the fan under RF-6.1, open the inspection door, and inspect the blades for deposits, erosion, cracks and missing balance weights [RF-4.1]. Grease each pillow block every 4000 running hours with 10 g of lithium complex grease, NLGI grade 2 [RF-3.3]. Clean the nipple before greasing and add grease slowly while the fan runs, if it can be done safely through the extended grease lines [RF-3.3].",
+      "tool_calls": [
+        {
+          "name": "get_machine_status",
+          "arguments": {
+            "machine_id": "fan-2"
+          },
+          "is_error": false
+        },
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "RF-1 centrifugal fan imbalance shaft frequency 1x Fan 2 has an alarm. What does it mean and can it keep running?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [],
+      "cited": [],
+      "cited_machines": [
+        "pump-3",
+        "pump-4",
+        "fan-2"
+      ],
+      "relevant_cited": 0,
+      "invalid_citations": [],
+      "sentences": 3,
+      "cited_sentences": 3,
+      "supported_sentences": 3,
+      "expected_terms_found": true,
+      "question": "Which machines are alarming right now?",
+      "answer": "pump-3 is in alarm with hypothesis bearing wear since window 71 [status:pump-3]. pump-4 is in alarm with hypothesis temperature drift since window 92 [status:pump-4]. fan-2 is in alarm with hypothesis imbalance since window 90 [status:fan-2].",
+      "tool_calls": [
+        {
+          "name": "list_alarms",
+          "arguments": {},
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [],
+      "cited": [],
+      "cited_machines": [
+        "pump-1"
+      ],
+      "relevant_cited": 0,
+      "invalid_citations": [],
+      "sentences": 1,
+      "cited_sentences": 1,
+      "supported_sentences": 1,
+      "expected_terms_found": true,
+      "question": "Is pump 1 running normally?",
+      "answer": "pump-1 is in state normal; the largest channel deviation is kurtosis at z = 1.4 [status:pump-1].",
+      "tool_calls": [
+        {
+          "name": "get_machine_status",
+          "arguments": {
+            "machine_id": "pump-1"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-2.1"
+      ],
+      "cited": [
+        "RP-2.1",
+        "RP-2.2"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": true,
+      "question": "What is the vibration trip limit for the RP-1 pump?",
+      "answer": "The trip limit is 7.1 mm/s RMS [RP-2.1]. Above the trip limit, stop the pump at the next safe opportunity and do not restart it until the cause is found and corrected [RP-2.1]. The housing temperature alert applies when the drive-end housing runs 15 C or more above its normal running temperature for the same duty, or exceeds 70 C, whichever comes first [RP-2.2]. The trip limit is 85 C [RP-2.2].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What is the vibration trip limit for the RP-1 pump?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q07",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-3.1"
+      ],
+      "cited": [
+        "VG-2",
+        "RP-3.1"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": true,
+      "question": "What is the outer race defect frequency of the RP-1 pump bearing?",
+      "answer": "A defect on a bearing race produces a short impact each time a rolling element passes it [VG-2]. Peaks in the envelope spectrum at the outer race frequency (BPFO) and its harmonics indicate an outer race defect [VG-2]. Its defect frequencies as multiples of shaft speed are: outer race (BPFO) 3.375, inner race (BPFI) 5.625, ball spin (BSF) 1.875 and cage (FTF) 0.375 [RP-3.1]. An outer race defect produces envelope spectrum peaks at 83.5 Hz and its harmonics at 167 Hz and 250.6 Hz [RP-3.1].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What is the outer race defect frequency of the RP-1 pump bearing?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RF-3.1"
+      ],
+      "cited": [
+        "RF-3.1",
+        "VG-2"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": true,
+      "question": "At what frequency does an outer race defect show on the RF-1 fan bearing?",
+      "answer": "Its defect frequencies as multiples of shaft speed are: outer race (BPFO) 3.2, inner race (BPFI) 4.8, ball spin (BSF) 2.4 and cage (FTF) 0.4 [RF-3.1]. An outer race defect produces envelope spectrum peaks at 52.8 Hz and its harmonics at 105.6 Hz and 158.4 Hz [RF-3.1]. A defect on a bearing race produces a short impact each time a rolling element passes it [VG-2]. Peaks in the envelope spectrum at the outer race frequency (BPFO) and its harmonics indicate an outer race defect [VG-2].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "At what frequency does an outer race defect show on the RF-1 fan bearing?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-3.3"
+      ],
+      "cited": [
+        "RP-3.3"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 2,
+      "cited_sentences": 2,
+      "supported_sentences": 2,
+      "expected_terms_found": true,
+      "question": "How often is the RP-1 drive-end bearing greased, and with how much grease?",
+      "answer": "Grease the drive-end bearing every 2000 running hours with 15 g of lithium complex grease, NLGI grade 2 [RP-3.3]. Do not add grease to silence a noisy bearing [RP-3.3].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "How often is the RP-1 drive-end bearing greased, and with how much grease?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RF-4.2"
+      ],
+      "cited": [
+        "RF-4.1",
+        "RF-4.2"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": false,
+      "question": "How do I field balance an RF-1 fan impeller?",
+      "answer": "To check: isolate the fan under RF-6.1, open the inspection door, and inspect the blades for deposits, erosion, cracks and missing balance weights [RF-4.1]. If vibration stays above the alert limit after cleaning, field balance the impeller under RF-4.2 [RF-4.1]. Field balancing the RF-1 is a single-plane correction on the impeller back plate [RF-4.2]. It needs a phase reference, a once-per-revolution tachometer signal, which the fixed monitoring sensor does not provide, so a portable balancing instrument is used [RF-4.2].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "How do I field balance an RF-1 fan impeller?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q11",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "VG-4",
+        "VG-1"
+      ],
+      "cited": [
+        "VG-4",
+        "VG-1"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 2,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": true,
+      "question": "What does an unclassified alarm mean?",
+      "answer": "An unclassified alarm means the kurtosis channel exceeded the threshold while no specific channel did [VG-4]. An unclassified alarm that clears within a few windows needs no action [VG-4]. The monitor learns a baseline for each machine from its first 40 acquisition windows and then scores every new window against it [VG-1]. The channels and the fault hypothesis each one indicates are: 1x amplitude for imbalance, bearing envelope for bearing wear, housing temperature for temperature drift, and kurtosis for an unclassified impulsive fault [VG-1].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What does an unclassified alarm mean?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "VG-3",
+        "RP-2.1",
+        "RP-3.2"
+      ],
+      "cited": [
+        "RP-3.2",
+        "VG-3"
+      ],
+      "cited_machines": [
+        "pump-3"
+      ],
+      "relevant_cited": 2,
+      "invalid_citations": [],
+      "sentences": 6,
+      "cited_sentences": 6,
+      "supported_sentences": 6,
+      "expected_terms_found": true,
+      "question": "Pump 3 vibration velocity is below the alert limit. Can I ignore its bearing alarm?",
+      "answer": "pump-3 (RP-1 centrifugal pump) is in alarm since window 71 with hypothesis bearing wear; the kurtosis channel is at z = 20.77 against its baseline [status:pump-3]. Vibration velocity is 2.29 mm/s RMS and housing temperature is 41.88 C [status:pump-3]. A bearing defect indication means the envelope spectrum shows peaks at a bearing defect frequency and its harmonics above the baseline [RP-3.2]. If the indication grows over three consecutive days, or vibration velocity passes the alert limit, plan a bearing replacement under RP-3.4 at the next planned stop [RP-3.2]. Early bearing damage adds high-frequency impacts with little energy, so the velocity can stay well below the alert limit while the bearing envelope channel is far above its baseline [VG-3]. A velocity below the alert limit therefore does not clear a bearing alarm [VG-3].",
+      "tool_calls": [
+        {
+          "name": "get_machine_status",
+          "arguments": {
+            "machine_id": "pump-3"
+          },
+          "is_error": false
+        },
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "RP-1 centrifugal pump responding to a bearing defect indication outer race Pump 3 vibration velocity is below the alert limit. Can I ignore its bearing alarm?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q13",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-6.1",
+        "RP-3.4"
+      ],
+      "cited": [
+        "RP-6.1",
+        "VG-7"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": false,
+      "question": "What isolation is needed before opening the RP-1 pump bearing housing?",
+      "answer": "Before any inspection inside the pump or bearing housing, isolate the pump [RP-6.1]. Allow the housing to cool below 50 C before handling bearing parts [RP-6.1]. Before opening a machine on the strength of a monitor alarm, confirm the sensor is trustworthy [VG-7]. Check that the sensor is fixed to the bearing housing and has not moved or worked loose, since a loose sensor produces impulsive readings [VG-7].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What isolation is needed before opening the RP-1 pump bearing housing?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q14",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "VG-5",
+        "RP-4.2",
+        "RP-4.1"
+      ],
+      "cited": [
+        "VG-5"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 2,
+      "cited_sentences": 2,
+      "supported_sentences": 2,
+      "expected_terms_found": true,
+      "question": "How can I tell imbalance from misalignment in the vibration spectrum?",
+      "answer": "Misalignment produces a strong 2x peak and high axial vibration, often with 1x as well [VG-5]. The monitor tracks the 1x amplitude only, so it can raise an imbalance hypothesis but cannot separate misalignment or looseness [VG-5].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "How can I tell imbalance from misalignment in the vibration spectrum?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q15",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RF-2.2"
+      ],
+      "cited": [
+        "RF-5.1",
+        "RF-2.2"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": true,
+      "question": "What is the bearing temperature trip limit on the RF-1 fan?",
+      "answer": "When the drive-end pillow block exceeds the alert in RF-2.2, check: recent greasing or missed greasing against the record in RF-3.3; the ambient and inlet air temperature; coupling condition and alignment after any recent work; and the fan duty, since a closed outlet damper or a blocked filter changes the bearing load [RF-5.1]. Stop the fan if the temperature reaches the 80 C trip limit [RF-5.1]. The bearing temperature alert applies when the drive-end pillow block runs 15 C or more above its normal running temperature, or exceeds 65 C, whichever comes first [RF-2.2]. The trip limit is 80 C [RF-2.2].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What is the bearing temperature trip limit on the RF-1 fan?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q16",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "RP-3.4"
+      ],
+      "cited": [
+        "RP-3.4"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 2,
+      "cited_sentences": 2,
+      "supported_sentences": 2,
+      "expected_terms_found": true,
+      "question": "How hot can a new bearing be heated when mounting it on the RP-1 shaft?",
+      "answer": "Withdraw the shaft assembly and remove the old bearing with a puller that bears on the inner ring [RP-3.4]. Mount the new bearing by heating it on an induction heater to 110 C; do not exceed 125 C [RP-3.4].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "How hot can a new bearing be heated when mounting it on the RP-1 shaft?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q17",
+      "answerable": true,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [
+        "VG-6"
+      ],
+      "cited": [
+        "VG-6",
+        "VG-4"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 1,
+      "invalid_citations": [],
+      "sentences": 4,
+      "cited_sentences": 4,
+      "supported_sentences": 4,
+      "expected_terms_found": false,
+      "question": "Why does the monitor wait for two of three windows before it alarms?",
+      "answer": "The monitor raises an alarm when at least 2 of the last 3 windows exceed the threshold, and clears it when fewer than 2 of the last 3 do [VG-6]. The cost of the persistence rule is delay: a fault that is just above the threshold takes at least two windows to alarm, and an intermittent one may not alarm at all [VG-6]. An unclassified alarm that clears within a few windows needs no action [VG-4]. If it persists for a day, take a portable measurement, because a bearing defect can show as impulsiveness before its envelope peaks are distinct [VG-4].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "Why does the monitor wait for two of three windows before it alarms?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q18",
+      "answerable": false,
+      "stop_reason": "end_turn",
+      "declined": true,
+      "relevant": [],
+      "cited": [],
+      "cited_machines": [],
+      "relevant_cited": 0,
+      "invalid_citations": [],
+      "sentences": 0,
+      "cited_sentences": 0,
+      "supported_sentences": 0,
+      "expected_terms_found": null,
+      "question": "What torque is specified for the RP-1 impeller nut?",
+      "answer": "The manual does not cover this.",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What torque is specified for the RP-1 impeller nut?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q19",
+      "answerable": false,
+      "stop_reason": "end_turn",
+      "declined": true,
+      "relevant": [],
+      "cited": [],
+      "cited_machines": [],
+      "relevant_cited": 0,
+      "invalid_citations": [],
+      "sentences": 0,
+      "cited_sentences": 0,
+      "supported_sentences": 0,
+      "expected_terms_found": null,
+      "question": "What is the spare part number of the RF-1 motor?",
+      "answer": "The manual does not cover this.",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "What is the spare part number of the RF-1 motor?"
+          },
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "id": "q20",
+      "answerable": false,
+      "stop_reason": "end_turn",
+      "declined": false,
+      "relevant": [],
+      "cited": [
+        "RP-5.1"
+      ],
+      "cited_machines": [],
+      "relevant_cited": 0,
+      "invalid_citations": [],
+      "sentences": 2,
+      "cited_sentences": 2,
+      "supported_sentences": 2,
+      "expected_terms_found": null,
+      "question": "How do I calibrate the discharge pressure transmitter?",
+      "answer": "When the housing temperature exceeds the alert in RP-2.2, check in this order [RP-5.1]. Three, load: compare discharge pressure and motor current with normal duty, since operation far from the best efficiency point raises bearing load [RP-5.1].",
+      "tool_calls": [
+        {
+          "name": "search_manual",
+          "arguments": {
+            "query": "How do I calibrate the discharge pressure transmitter?"
+          },
+          "is_error": false
+        }
+      ]
+    }
+  ]
+}
