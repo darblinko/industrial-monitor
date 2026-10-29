@@ -7,6 +7,7 @@ from industrial_monitor.ruuvi import decode_rawv2
 from industrial_monitor.simulator import (
     FaultPlan,
     evaluation_plant,
+    plant_messages,
     simulate_machine,
     to_messages,
 )
@@ -59,3 +60,15 @@ def test_evaluation_plant_assigns_each_fault_to_the_requested_number_of_machines
     assert all(faults.count(f) == 3 for f in set(faults))
     assert len({spec.machine_id for spec, _ in machines}) == 12
     assert all(plan.onset_window >= 60 for _, plan in machines if plan.fault != "none")
+
+
+def test_plant_messages_interleave_machines_window_by_window():
+    plant = [(PUMP, FaultPlan("none", 0, 1)), (FLEET["fan-1"], FaultPlan("none", 0, 1))]
+    windows = list(plant_messages(plant, windows=3, seed=4, site="s"))
+    assert len(windows) == 3
+    assert [topic for topic, _ in windows[0]] == [
+        "plant/s/pump-3/rawv2",
+        "plant/s/pump-3/vibration",
+        "plant/s/fan-1/rawv2",
+        "plant/s/fan-1/vibration",
+    ]

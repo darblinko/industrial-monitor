@@ -111,3 +111,17 @@ def evaluation_plant(
         ramp = baseline_windows + test_windows - onset
         plant.append((spec, FaultPlan(fault, onset, ramp)))
     return plant
+
+
+def plant_messages(
+    plant: list[tuple[MachineSpec, FaultPlan]], windows: int, seed: int, site: str
+) -> Iterator[list[tuple[str, bytes]]]:
+    """MQTT messages for every machine, one list per acquisition window."""
+    streams = [simulate_machine(spec, plan, windows, seed) for spec, plan in plant]
+    specs = [spec for spec, _ in plant]
+    for simulated in zip(*streams, strict=True):
+        yield [
+            message
+            for window, spec in zip(simulated, specs, strict=True)
+            for message in to_messages(window, spec, site)
+        ]
