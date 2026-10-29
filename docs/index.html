@@ -46,7 +46,7 @@
 flowchart TB
   sim["Simulator: 6 machines, injected faults"] --> bus
   ble["Ruuvi tags over BLE (optional)"] --> bus
-  bus[("MQTT broker or in-process bus")] --> monitor["Plant monitor: FFT features, robust z-scores, 2 of 3 rule"]
+  bus[("MQTT broker or in-process bus")] --> monitor["Plant monitor: FFT features, median and MAD z-scores, 2 of 3 rule"]
   monitor -- "anomaly topic" --> bus
   monitor --> state["Plant state snapshot"]
   state --> agent["Maintenance assistant: tool-use loop"]
@@ -76,7 +76,7 @@ flowchart TB
       <figure class="chart" data-chart="detection-by-severity"></figure>
       <figure class="chart" data-chart="threshold-sweep"></figure>
       <h3>Maintenance assistant</h3>
-      <p>The assistant was scored on 20 golden questions: 17 answerable and 3 that the corpus does not cover. These numbers come from the deterministic extractive model that the tests use. They are a baseline for the evaluation harness. They do not measure Claude, and no Claude run is recorded in the repository.</p>
+      <p>The assistant was scored on 20 golden questions: 17 answerable and 3 that the corpus does not cover. These numbers come from the deterministic extractive model that the tests use. They test the evaluation pipeline and set a baseline for it. They do not measure Claude, and no Claude run is recorded in the repository.</p>
       <figure class="chart" data-chart="assistant-metrics"></figure>
       <aside class="note">
         <p>Detector: <code>results/detection.json</code>, produced by <code>industrial-monitor evaluate-detector</code>.</p>
@@ -101,7 +101,7 @@ uv run industrial-monitor export-landing</code></pre></li>
       </ol>
       <p>The MQTT path needs a broker: <code>docker compose up -d</code> starts Mosquitto on 127.0.0.1:1883. Run <code>uv run industrial-monitor monitor</code> in one terminal and <code>uv run industrial-monitor simulate</code> in another. A Claude run needs <code>ANTHROPIC_API_KEY</code> and the flag <code>--model claude</code> on <code>ask</code> or <code>evaluate-assistant</code>.</p>
       <aside class="note">
-        <p>Steps 1 to 4 need no broker, sensor or API key. <code>evaluate-detector</code> runs for about 80 seconds.</p>
+        <p>Steps 1 to 4 need no broker, sensor or API key. <code>evaluate-detector</code> ran in 9.5 seconds from a clean clone.</p>
       </aside>
     </section>
 
