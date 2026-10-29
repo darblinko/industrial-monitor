@@ -7,8 +7,11 @@ Each window's state is published as JSON on plant/<site>/<machine>/anomaly.
 
 import json
 import logging
+import os
+import tempfile
 from collections import Counter
 from dataclasses import dataclass
+from pathlib import Path
 
 from industrial_monitor.burst import decode_burst
 from industrial_monitor.bus import Bus
@@ -152,3 +155,15 @@ class PlantMonitor:
 
     def alarms(self) -> list[dict]:
         return [status for status in self.snapshot() if status["state"] == "alarm"]
+
+
+def save_snapshot(path: Path, statuses: list[dict]) -> None:
+    """Write the plant state atomically, so a reader never sees a partial file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile("w", dir=path.parent, suffix=".tmp", delete=False) as file:
+        json.dump(statuses, file, indent=2)
+    os.replace(file.name, path)
+
+
+def load_snapshot(path: Path) -> list[dict]:
+    return json.loads(path.read_text())

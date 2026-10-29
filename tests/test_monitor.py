@@ -69,3 +69,13 @@ def test_monitor_skips_vibration_until_a_temperature_is_known():
     bus.publish(topic, status_payload)
     expected = round(decode_rawv2(status_payload).temperature_c, 2)
     assert monitor.status("pump-3")["temperature_c"] == expected
+
+
+def test_snapshot_file_round_trip(tmp_path):
+    from industrial_monitor.monitor import load_snapshot, save_snapshot
+
+    monitor, _ = run_plant([(PUMP_3, FaultPlan("none", 0, 1))], windows=3)
+    path = tmp_path / "state" / "plant.json"
+    save_snapshot(path, monitor.snapshot())
+    assert load_snapshot(path) == monitor.snapshot()
+    assert [p.name for p in path.parent.iterdir()] == ["plant.json"]

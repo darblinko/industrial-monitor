@@ -1,6 +1,9 @@
 """Demo plant: the six-machine fleet with three injected faults, replayed in process."""
 
-from industrial_monitor.bus import InProcessBus
+import time
+from collections.abc import Callable
+
+from industrial_monitor.bus import Bus, InProcessBus
 from industrial_monitor.machines import FLEET
 from industrial_monitor.monitor import MonitorConfig, PlantMonitor
 from industrial_monitor.settings import CALIBRATED_THRESHOLD
@@ -30,3 +33,19 @@ def run_demo(
         for topic, payload in messages:
             bus.publish(topic, payload)
     return monitor
+
+
+def publish_demo(
+    bus: Bus,
+    windows: int = DEMO_WINDOWS,
+    interval_s: float = 0.0,
+    seed: int = DEMO_SEED,
+    site: str = DEMO_SITE,
+    sleep: Callable[[float], None] = time.sleep,
+) -> None:
+    """Publish the demo plant to a bus, pausing interval_s between acquisition windows."""
+    for index, messages in enumerate(plant_messages(demo_plant(), windows, seed, site)):
+        if index > 0 and interval_s > 0:
+            sleep(interval_s)
+        for topic, payload in messages:
+            bus.publish(topic, payload)
