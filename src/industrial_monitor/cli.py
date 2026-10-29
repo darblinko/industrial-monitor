@@ -1,6 +1,7 @@
 """Command-line entry point: `industrial-monitor <command>`."""
 
 import argparse
+import asyncio
 import contextlib
 import json
 import sys
@@ -108,6 +109,27 @@ def cmd_monitor(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _tag_mapping(text: str) -> tuple[str, str]:
+    mac, separator, machine = text.partition("=")
+    if not separator or not machine:
+        raise argparse.ArgumentTypeError(f"expected MAC=machine-id, got {text!r}")
+    return mac.upper(), machine
+
+
+def cmd_scan_ble(args: argparse.Namespace, settings: Settings) -> int:
+    try:
+        import bleak  # noqa: F401
+    except ImportError:
+        print("BLE scanning needs the optional extra: uv sync --extra ble", file=sys.stderr)
+        return 2
+    from industrial_monitor.ble import scan
+
+    with _mqtt_bus(settings) as bus:
+        count = asyncio.run(scan(bus, settings.site, args.duration, dict(args.map)))
+    print(f"published {count} RAWv2 advertisements")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="industrial-monitor", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -133,6 +155,11 @@ def build_parser() -> argparse.ArgumentParser:
     live.add_argument("--state-file", type=Path, default=DEFAULT_STATE_FILE)
     live.add_argument("--duration", type=float, default=None, help="seconds; default until Ctrl-C")
     live.set_defaults(handler=cmd_monitor)
+
+    ble = commands.add_parser("scan-ble", help="publish RAWv2 from nearby Ruuvi tags (optional)")
+    ble.add_argument("--duration", type=float, default=30.0, help="seconds to scan")
+    ble.add_argument("--map", type=_tag_mapping, action="append", default=[], help="MAC=machine-id")
+    ble.set_defaults(handler=cmd_scan_ble)
     return parser
 
 

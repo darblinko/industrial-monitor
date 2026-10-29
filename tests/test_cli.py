@@ -56,3 +56,14 @@ def test_monitor_tracks_the_simulated_plant_through_the_broker(tmp_path, monkeyp
     assert len(statuses) == 6
     assert {s["windows"] for s in statuses} == {45}
     assert {s["state"] for s in statuses} <= {"normal", "alarm"}
+
+
+def test_scan_ble_explains_the_missing_extra(monkeypatch, capsys):
+    monkeypatch.setitem(__import__("sys").modules, "bleak", None)
+    assert main(["scan-ble", "--map", "C1:00:00:00:00:2A=pump-3"]) == 2
+    assert "uv sync --extra ble" in capsys.readouterr().err
+
+
+def test_scan_ble_rejects_a_malformed_map(capsys):
+    with pytest.raises(SystemExit):
+        main(["scan-ble", "--map", "pump-3"])
