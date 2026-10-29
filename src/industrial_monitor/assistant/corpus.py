@@ -65,7 +65,7 @@ def load_corpus(directory: Path) -> list[Passage]:
 class BM25Index:
     def __init__(self, passages: list[Passage]):
         self.passages = passages
-        self._terms = [Counter(tokenize(f"{p.title} {p.text}")) for p in passages]
+        self._terms = [Counter(tokenize(f"{p.document} {p.title} {p.text}")) for p in passages]
         self._lengths = [sum(terms.values()) for terms in self._terms]
         self._average_length = sum(self._lengths) / len(self._lengths)
         frequency = Counter(term for terms in self._terms for term in terms)
