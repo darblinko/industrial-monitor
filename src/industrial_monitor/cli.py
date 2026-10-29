@@ -3,7 +3,9 @@
 import argparse
 import asyncio
 import contextlib
+import datetime
 import json
+import subprocess
 import sys
 import threading
 from pathlib import Path
@@ -14,6 +16,7 @@ from industrial_monitor.detection_eval import (
     TEST_WINDOWS,
     run_detection_evaluation,
 )
+from industrial_monitor.landing import build_landing_data
 from industrial_monitor.machines import FLEET
 from industrial_monitor.monitor import MonitorConfig, PlantMonitor, load_snapshot, save_snapshot
 from industrial_monitor.settings import Settings
@@ -160,6 +163,25 @@ def cmd_monitor(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _git_revision() -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=False
+    )
+    return result.stdout.strip() if result.returncode == 0 else "unknown"
+
+
+def cmd_export_landing(args: argparse.Namespace, settings: Settings) -> int:
+    data = build_landing_data(
+        json.loads(args.detection.read_text()),
+        json.loads(args.assistant.read_text()),
+        revision=args.revision or _git_revision(),
+        measured=args.measured or datetime.date.today().isoformat(),
+        windows=args.windows,
+    )
+    _write_json(args.output, data)
+    return 0
+
+
 def _tag_mapping(text: str) -> tuple[str, str]:
     mac, separator, machine = text.partition("=")
     if not separator or not machine:
@@ -225,6 +247,17 @@ def build_parser() -> argparse.ArgumentParser:
     ble.add_argument("--duration", type=float, default=30.0, help="seconds to scan")
     ble.add_argument("--map", type=_tag_mapping, action="append", default=[], help="MAC=machine-id")
     ble.set_defaults(handler=cmd_scan_ble)
+
+    export = commands.add_parser(
+        "export-landing", help="write docs/data.json for the README figures and landing page"
+    )
+    export.add_argument("--detection", type=Path, default=Path("results/detection.json"))
+    export.add_argument("--assistant", type=Path, default=Path("results/assistant-eval-fake.json"))
+    export.add_argument("--output", type=Path, default=Path("docs/data.json"))
+    export.add_argument("--revision", help="commit the numbers were measured at; default HEAD")
+    export.add_argument("--measured", help="measurement date; default today")
+    export.add_argument("--windows", type=int, default=DEMO_WINDOWS)
+    export.set_defaults(handler=cmd_export_landing)
     return parser
 
 

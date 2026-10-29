@@ -88,3 +88,24 @@ def test_evaluate_assistant_writes_scores(tmp_path):
     result = json.loads(output.read_text())
     assert result["model"] == "fake-extractive"
     assert result["summary"]["questions"] == 20
+
+
+def test_export_landing_writes_chart_data(tmp_path):
+    output = tmp_path / "data.json"
+    code = main(
+        [
+            "export-landing",
+            "--output",
+            str(output),
+            "--revision",
+            "abc1234",
+            "--measured",
+            "2026-10-28",
+            "--windows",
+            "50",
+        ]
+    )
+    assert code == 0
+    data = json.loads(output.read_text())
+    assert data["meta"]["revision"] == "abc1234"
+    assert "detection-by-fault" in {chart["name"] for chart in data["charts"]}
