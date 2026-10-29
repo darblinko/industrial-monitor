@@ -1,7 +1,7 @@
 {
   "meta": {
     "repo": "industrial-monitor",
-    "revision": "7bfbf82",
+    "revision": "e60ef74",
     "measured": "2026-10-28"
   },
   "charts": [
@@ -221,7 +221,7 @@
       "title": "Pump 3 channel z-scores from the anomaly topic",
       "subtitle": "Demo plant: bearing wear from window 70, alarm from window 71, false alarm at windows 59 to 60",
       "source": "industrial-monitor export-landing (demo plant, seed 7)",
-      "alt": "Pump 3: bearing wear from window 70, alarm from window 71, false alarm at windows 59 to 60. The bearing envelope z-score reaches 19.21 at window 159.",
+      "alt": "Pump 3: bearing wear from window 70, alarm from window 71, false alarm at windows 59 to 60. The bearing envelope z-score peaks at 20.84 at window 135.",
       "format": "decimal2",
       "x": [
         "40",

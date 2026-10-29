@@ -4,7 +4,7 @@ Condition monitoring for pumps and fans: Ruuvi RAWv2 sensor messages over MQTT, 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/pump-3-scores-dark.svg">
-  <img alt="Pump 3: bearing wear from window 70, alarm from window 71, false alarm at windows 59 to 60. The bearing envelope z-score reaches 19.21 at window 159." src="docs/figures/pump-3-scores-light.svg" width="760">
+  <img alt="Pump 3: bearing wear from window 70, alarm from window 71, false alarm at windows 59 to 60. The bearing envelope z-score peaks at 20.84 at window 135." src="docs/figures/pump-3-scores-light.svg" width="760">
 </picture>
 
 Source: chart `pump-3-scores` in [docs/data.json](docs/data.json), written by `industrial-monitor export-landing` from the messages the monitor published on `plant/demo/pump-3/anomaly` during the demo run. The interactive charts are on the landing page, [docs/index.html](docs/index.html), which GitHub Pages serves from `/docs` once it is enabled.
@@ -235,7 +235,7 @@ uv run industrial-monitor simulate --interval 0.5
 | [corpus/](corpus/) | Synthetic RP-1 pump manual, RF-1 fan manual and vibration field guide (30 passages) |
 | [eval/](eval/) | Golden question set and the demo plant state the assistant reads |
 | [results/](results/) | Detector and assistant evaluation outputs |
-| [tests/](tests/) | 120 pytest tests; the broker tests run only when `MQTT_HOST` is set |
+| [tests/](tests/) | 121 pytest tests; the broker tests run only when `MQTT_HOST` is set |
 | [docs/](docs/) | Landing page, `data.json` and the README figures |
 | [docker-compose.yml](docker-compose.yml), [mosquitto/](mosquitto/) | Local Mosquitto broker |
 
