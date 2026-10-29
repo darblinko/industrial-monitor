@@ -64,7 +64,7 @@ class Toolbox:
         }
 
     def call(self, name: str, arguments: dict) -> tuple[str, bool]:
-        """Returns (output, is_error). Errors are returned to the model, not raised."""
+        """Returns (output, is_error). Errors are returned to the model instead of raised."""
         tool = self._tools.get(name)
         if tool is None:
             return f"unknown tool {name!r}", True

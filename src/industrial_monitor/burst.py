@@ -1,7 +1,8 @@
 """Vibration burst frame: a block of raw radial acceleration samples from one sensor.
 
 RAWv2 carries one acceleration sample per advertisement, which cannot resolve a vibration
-spectrum. This frame is defined by this project, not by Ruuvi. Layout, big-endian:
+spectrum. This frame is defined by this project; Ruuvi firmware does not emit it.
+Layout, big-endian:
 
     byte 0       version (1)
     bytes 1-6    sensor MAC address

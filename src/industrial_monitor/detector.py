@@ -1,4 +1,4 @@
-"""Per-machine anomaly detector: robust baseline, one-sided z-scores, fault hypothesis.
+"""Per-machine anomaly detector: median and MAD baseline, z-scores, fault hypothesis.
 
 Each channel maps to the fault it indicates. Channels with a specific signature take
 precedence over the generic impulsiveness channel (kurtosis), which only produces an

@@ -6,7 +6,7 @@ Metrics, all micro-averaged over questions:
   a tool call in the same run, so a fabricated citation counts against it
 - sentence coverage: share of answer sentences that carry a citation
 - lexical support: share of sentences whose content words appear mostly (SUPPORT_THRESHOLD)
-  in the text they cite; a proxy for groundedness, not a judgment of meaning
+  in the text they cite; a proxy for groundedness that does not judge meaning
 - expected terms: share of questions whose answer contains every expected term
 - decline behaviour on unanswerable and answerable questions
 """
