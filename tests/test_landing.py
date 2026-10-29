@@ -92,3 +92,10 @@ def test_every_chart_meets_the_publish_kit_schema():
             assert all(len(s["values"]) == len(chart["x"]) for s in chart["series"])
     assert len({chart["name"] for chart in data["charts"]}) == len(data["charts"])
     json.dumps(data, allow_nan=False)
+
+
+def test_score_timeline_reports_alarms_before_and_after_the_fault_onset():
+    subtitle = score_timeline()["subtitle"]
+    assert "bearing wear from window 70" in subtitle
+    assert "alarm from window 71" in subtitle
+    assert "false alarm at windows 59 to 60" in subtitle

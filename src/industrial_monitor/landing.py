@@ -15,7 +15,7 @@ from industrial_monitor.machines import FLEET
 from industrial_monitor.monitor import MonitorConfig, PlantMonitor
 from industrial_monitor.settings import CALIBRATED_THRESHOLD
 from industrial_monitor.signals import SAMPLE_RATE_HZ
-from industrial_monitor.simulator import SimulatedWindow, simulate_machine
+from industrial_monitor.simulator import FaultPlan, SimulatedWindow, simulate_machine
 
 REPO = "industrial-monitor"
 DETECTION_SOURCE = "results/detection.json"
@@ -297,8 +297,29 @@ def _anomaly_messages(windows: int, machine_id: str) -> list[dict]:
     return [message for message in received if message["channel_z"]]
 
 
+def _window_ranges(windows: list[int]) -> str:
+    ranges: list[list[int]] = []
+    for window in windows:
+        if ranges and window == ranges[-1][1] + 1:
+            ranges[-1][1] = window
+        else:
+            ranges.append([window, window])
+    return " and ".join(f"{a} to {b}" if b > a else str(a) for a, b in ranges)
+
+
+def _alarm_summary(messages: list[dict], plan: FaultPlan) -> str:
+    alarm_windows = [m["window"] for m in messages if m["state"] == "alarm"]
+    early = [w for w in alarm_windows if w < plan.onset_window]
+    late = [w for w in alarm_windows if w >= plan.onset_window]
+    parts = [f"{FAULT_LABELS[plan.fault].lower()} from window {plan.onset_window}"]
+    parts.append(f"alarm from window {late[0]}" if late else "no alarm after the onset")
+    if early:
+        parts.append(f"false alarm at windows {_window_ranges(early)}")
+    return ", ".join(parts)
+
+
 def score_timeline(windows: int = DEMO_WINDOWS, machine_id: str = FOCUS_MACHINE) -> dict:
-    """Channel z-scores of one machine as published on its anomaly topic during the demo."""
+    """Channel z-scores of a demo machine with an injected fault, from its anomaly topic."""
     messages = _anomaly_messages(windows, machine_id)
     series = [
         {"name": label, "values": [m["channel_z"][channel] for m in messages]}
@@ -306,17 +327,16 @@ def score_timeline(windows: int = DEMO_WINDOWS, machine_id: str = FOCUS_MACHINE)
     ]
     threshold = messages[0]["threshold"]
     series.append({"name": f"threshold {threshold:g}", "values": [threshold] * len(messages)})
-    alarms = [m["window"] for m in messages if m["state"] == "alarm"]
-    first_alarm = f"first alarm at window {alarms[0]}" if alarms else "no alarm"
+    summary = _alarm_summary(messages, DEMO_PLANS[machine_id])
     machine = machine_id.replace("-", " ").capitalize()
     return {
         "name": f"{machine_id}-scores",
         "type": "line",
         "title": f"{machine} channel z-scores from the anomaly topic",
-        "subtitle": f"Demo plant after the {messages[0]['window']}-window baseline; {first_alarm}",
+        "subtitle": f"Demo plant: {summary}",
         "source": DEMO_SOURCE,
         "alt": (
-            f"{machine} {first_alarm}; the bearing envelope z-score reaches "
+            f"{machine}: {summary}. The bearing envelope z-score reaches "
             f"{series[0]['values'][-1]:g} at window {messages[-1]['window']}."
         ),
         "format": "decimal2",
