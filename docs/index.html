@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>industrial-monitor</title>
+  <meta name="description" content="Ruuvi RAWv2 sensor messages over MQTT, FFT vibration anomaly detection measured on labeled simulator faults, and a maintenance assistant that cites a manual corpus.">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="site-bar">
+    <a href="https://darblinko.github.io/">Mitchell Foutz</a>
+    <a href="https://github.com/darblinko/industrial-monitor">Source on GitHub</a>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h1>industrial-monitor</h1>
+      <p class="lede">A reference pipeline for condition monitoring of pumps and fans. Sensor messages in the Ruuvi RAWv2 format travel over MQTT to an FFT-based anomaly detector, and a maintenance assistant answers alarm questions with citations to a manual corpus and to the live plant state.</p>
+      <dl class="record">
+        <div><dt>Repository</dt><dd>darblinko/industrial-monitor</dd></div>
+        <div><dt>Revision</dt><dd><code>b2f7ba5</code></dd></div>
+        <div><dt>Measured</dt><dd>2026-10-28</dd></div>
+        <div><dt>License</dt><dd>Apache-2.0</dd></div>
+      </dl>
+      <figure class="chart" data-chart="headline"></figure>
+    </section>
+
+    <section>
+      <h2>Problem</h2>
+      <p>A vibration alarm reports that a number crossed a limit. The technician still needs the fault class, the evidence behind it and the procedure to follow. Two measurements decide whether such a system is usable: the share of fault windows the detector catches at a fixed false-alarm budget, and whether the assistant's answers cite passages that support them.</p>
+      <p>The false-alarm budget depends on the alarm rule. At the same z-score threshold of 2.55, alarming on every window above the threshold raised false alarms on 5.16% of healthy windows. Requiring 2 of 3 consecutive windows lowered that to 0.86%.</p>
+      <aside class="note">
+        <p>False-alarm rates: <code>results/detection.json</code>, <code>modes.per_window</code> and <code>modes.two_of_three</code>, 1,395 healthy windows on the held-out plant (seed 202).</p>
+      </aside>
+    </section>
+
+    <section>
+      <h2>How it works</h2>
+      <p>A simulator produces six machines (four pumps, two fans) with injected bearing wear, imbalance and temperature drift. Each acquisition window becomes two MQTT messages: a 24-byte RAWv2 status payload with the housing temperature, and a vibration burst of 1,024 acceleration samples at 1,344 Hz. The monitor extracts FFT features per window, scores them against a per-machine baseline learned from the first 40 windows, and publishes the machine state on its anomaly topic. The assistant reads that state and the manual corpus through three tools.</p>
+      <pre class="mermaid">
+flowchart TB
+  sim["Simulator: 6 machines, injected faults"] --> bus
+  ble["Ruuvi tags over BLE (optional)"] --> bus
+  bus[("MQTT broker or in-process bus")] --> monitor["Plant monitor: FFT features, robust z-scores, 2 of 3 rule"]
+  monitor -- "anomaly topic" --> bus
+  monitor --> state["Plant state snapshot"]
+  state --> agent["Maintenance assistant: tool-use loop"]
+  corpus["Manual corpus, BM25 search"] --> agent
+  agent --> answer["Answer with passage and status citations"]
+      </pre>
+      <h3>Demo plant: pump 3 develops an outer-race bearing defect</h3>
+      <p>The chart below is built from the JSON messages the monitor published on <code>plant/demo/pump-3/anomaly</code> during the demo run. The bearing envelope z-score crosses the threshold at the fault onset, window 70, and the alarm follows at window 71 with the second exceedance. The alarm at windows 59 to 60 is a false alarm: a kurtosis exceedance at window 58 and a temperature exceedance at window 59 together satisfy the 2 of 3 rule.</p>
+      <figure class="chart" data-chart="pump-3-scores"></figure>
+      <p>The acceleration spectrum shows where the impact energy goes. Each outer-race impact excites the 450 Hz housing resonance, so the largest bin between 300 and 600 Hz rises from 0.004 g in the healthy window to 0.149 g in the faulty one. The 20 to 25 Hz bin, which holds the 1x running-speed line at 24.75 Hz, reads 0.040 g and 0.043 g.</p>
+      <figure class="chart" data-chart="pump-3-spectrum"></figure>
+      <p>The envelope spectrum of the resonance band recovers the impact rate. The faulty window has lines at the ball pass frequency of the outer race (BPFO, 83.5 Hz) and its harmonics: the 82.5 Hz bin reads 0.001 g healthy and 0.200 g faulty, the 165 Hz bin 0.002 g and 0.078 g. The detector's bearing channel is the sum of the first three BPFO lines divided by the median envelope level between 10 and 300 Hz.</p>
+      <figure class="chart" data-chart="pump-3-envelope"></figure>
+      <aside class="note">
+        <p>Score timeline and spectra: <code>industrial-monitor export-landing</code>, demo plant seed 7, written to <code>docs/data.json</code>.</p>
+        <p>Spectra compare demo window 60 (healthy) with window 159 (bearing wear at severity 1.00). Each point is the largest amplitude in its frequency bin. Bin values quoted in the text are read from <code>docs/data.json</code>.</p>
+        <p>Signal models: <code>src/industrial_monitor/signals.py</code>. Features: <code>src/industrial_monitor/features.py</code>. Detector: <code>src/industrial_monitor/detector.py</code>.</p>
+      </aside>
+    </section>
+
+    <section>
+      <h2>Measured results</h2>
+      <p>The detector was evaluated on two simulated plants of 16 machines each: four healthy and four per fault class, pumps and fans with varied running amplitude, noise and base temperature. The threshold was calibrated on the development plant (seed 101) to the lowest value with at most 1% false alarms under the 2 of 3 rule, then frozen at 2.55 and measured on the held-out plant (seed 202), which has different machines, fault onsets and noise. The held-out plant contributed 1,395 healthy and 1,805 fault windows after the 40-window baselines.</p>
+      <figure class="chart" data-chart="detection-by-fault"></figure>
+      <figure class="chart" data-chart="false-alarm-rate"></figure>
+      <p>Imbalance is the weak class: 38.6% of imbalance windows below severity 0.25 are detected. In that range the simulated 1x amplitude grows by a factor of 1.15 to 1.75. Inference: this overlaps the healthy load variation, which the simulator draws from a lognormal factor with sigma 0.15.</p>
+      <figure class="chart" data-chart="detection-by-severity"></figure>
+      <figure class="chart" data-chart="threshold-sweep"></figure>
+      <h3>Maintenance assistant</h3>
+      <p>The assistant was scored on 20 golden questions: 17 answerable and 3 that the corpus does not cover. These numbers come from the deterministic extractive model that the tests use. They are a baseline for the evaluation harness. They do not measure Claude, and no Claude run is recorded in the repository.</p>
+      <figure class="chart" data-chart="assistant-metrics"></figure>
+      <aside class="note">
+        <p>Detector: <code>results/detection.json</code>, produced by <code>industrial-monitor evaluate-detector</code>.</p>
+        <p>Imbalance amplitude factor and load variation: <code>src/industrial_monitor/signals.py</code>.</p>
+        <p>Assistant: <code>results/assistant-eval-fake.json</code>, produced by <code>industrial-monitor evaluate-assistant</code>. Golden set: <code>eval/golden.jsonl</code>.</p>
+        <p>Sentences with a citation and lexical support are 100% by construction for an extractive model, which copies manual sentences.</p>
+      </aside>
+    </section>
+
+    <section>
+      <h2>Run it</h2>
+      <ol class="steps">
+        <li><pre><code>git clone https://github.com/darblinko/industrial-monitor
+cd industrial-monitor
+uv sync</code></pre></li>
+        <li><pre><code>uv run pytest -q</code></pre></li>
+        <li><pre><code>uv run industrial-monitor demo
+uv run industrial-monitor ask "Why is pump 3 alarming and what do I check?"</code></pre></li>
+        <li><pre><code>uv run industrial-monitor evaluate-detector
+uv run industrial-monitor evaluate-assistant
+uv run industrial-monitor export-landing</code></pre></li>
+      </ol>
+      <p>The MQTT path needs a broker: <code>docker compose up -d</code> starts Mosquitto on 127.0.0.1:1883. Run <code>uv run industrial-monitor monitor</code> in one terminal and <code>uv run industrial-monitor simulate</code> in another. A Claude run needs <code>ANTHROPIC_API_KEY</code> and the flag <code>--model claude</code> on <code>ask</code> or <code>evaluate-assistant</code>.</p>
+      <aside class="note">
+        <p>Steps 1 to 4 need no broker, sensor or API key. <code>evaluate-detector</code> runs for about 80 seconds.</p>
+      </aside>
+    </section>
+
+    <section>
+      <h2>Limitations</h2>
+      <ul>
+        <li>All sensor data is simulated. No field data from a real pump or fan was used.</li>
+        <li>The manual corpus is synthetic and written for this project. RP-1 and RF-1 are not real products, and their limits are illustrative.</li>
+        <li>A RAWv2 advertisement carries one acceleration sample per axis. The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real tags provide the temperature path only.</li>
+        <li>Alarming on every window above the threshold gives 5.16% false alarms and misses the 1% target. The 2 of 3 rule is required to meet it.</li>
+        <li>The 2 of 3 rule counts exceedances on any channel, so two unrelated single-window exceedances raise an alarm, as at pump 3 windows 59 to 60.</li>
+        <li>Imbalance below severity 0.25 is detected in 38.6% of windows, and the median imbalance alarm delay is 12 windows.</li>
+        <li>The detection evaluation uses unquantized samples. The MQTT path quantizes samples to 1 mG, and its effect on the rates was not measured.</li>
+        <li>The extractive model answered one of the three unanswerable questions (q20, pressure transmitter calibration) by citing RP-5.1, a passage on bearing housing temperature. Its decline rule (query term coverage below 0.5) was chosen after inspecting retrieval on the same golden set, so the decline rates are not held out.</li>
+        <li>Docker Compose was validated with <code>docker compose config</code> only. The broker tests ran against a local Mosquitto 2.0.18. The BLE scanner was not tested against hardware.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    industrial-monitor. Apache-2.0. Figures generated from <code>docs/data.json</code> at <code>b2f7ba5</code>.
+  </footer>
+
+  <script src="charts.js" defer></script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
+    const dark = document.documentElement.dataset.theme === "dark" ||
+      (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+    mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral",
+      fontFamily: "IBM Plex Sans, system-ui, sans-serif", securityLevel: "strict" });
+  </script>
+</body>
+</html>
