@@ -15,10 +15,13 @@ from industrial_monitor.detection_eval import (
     run_detection_evaluation,
 )
 from industrial_monitor.machines import FLEET
-from industrial_monitor.monitor import MonitorConfig, PlantMonitor, save_snapshot
+from industrial_monitor.monitor import MonitorConfig, PlantMonitor, load_snapshot, save_snapshot
 from industrial_monitor.settings import Settings
 
 DEFAULT_STATE_FILE = Path("results/scratch/plant-state.json")
+DEMO_STATE_FILE = Path("eval/plant-state.json")
+CORPUS_DIR = Path("corpus")
+GOLDEN_FILE = Path("eval/golden.jsonl")
 
 
 def _write_json(path: Path, data: dict | list) -> None:
@@ -57,6 +60,54 @@ def cmd_evaluate_detector(args: argparse.Namespace, settings: Settings) -> int:
 def cmd_demo(args: argparse.Namespace, settings: Settings) -> int:
     monitor = run_demo(windows=args.windows, threshold=settings.threshold)
     print("\n".join(_format_states(monitor.snapshot())))
+    if args.save:
+        save_snapshot(args.save, monitor.snapshot())
+        print(f"wrote {args.save}")
+    return 0
+
+
+def _assistant(args: argparse.Namespace, settings: Settings):
+    """(model, toolbox), or None after printing why the model is unavailable."""
+    from industrial_monitor.assistant.corpus import BM25Index, load_corpus
+    from industrial_monitor.assistant.fake_model import FakeModel
+    from industrial_monitor.assistant.tools import Toolbox
+
+    if args.model == "claude":
+        if not settings.anthropic_api_key:
+            print("--model claude needs ANTHROPIC_API_KEY in the environment", file=sys.stderr)
+            return None
+        from industrial_monitor.assistant.claude_model import ClaudeModel
+
+        model = ClaudeModel(model=settings.claude_model)
+    else:
+        model = FakeModel()
+    toolbox = Toolbox(load_snapshot(args.state_file), BM25Index(load_corpus(CORPUS_DIR)))
+    return model, toolbox
+
+
+def cmd_ask(args: argparse.Namespace, settings: Settings) -> int:
+    from industrial_monitor.assistant.agent import run_agent
+
+    assistant = _assistant(args, settings)
+    if assistant is None:
+        return 2
+    run = run_agent(args.question, *assistant)
+    print(run.answer or f"(no answer: {run.stop_reason})")
+    print(f"\ntools: {', '.join(call.name for call in run.tool_calls) or 'none'}")
+    return 0
+
+
+def cmd_evaluate_assistant(args: argparse.Namespace, settings: Settings) -> int:
+    from industrial_monitor.assistant.evaluation import evaluate, load_golden
+
+    assistant = _assistant(args, settings)
+    if assistant is None:
+        return 2
+    result = evaluate(*assistant, load_golden(GOLDEN_FILE))
+    output = args.output or Path(f"results/assistant-eval-{args.model}.json")
+    _write_json(output, result)
+    for metric, value in result["summary"].items():
+        print(f"{metric:<24} {value if not isinstance(value, float) else round(value, 3)}")
     return 0
 
 
@@ -144,7 +195,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     demo = commands.add_parser("demo", help="replay the demo plant in process, print states")
     demo.add_argument("--windows", type=int, default=DEMO_WINDOWS)
+    demo.add_argument("--save", type=Path, help="write the final plant state to this file")
     demo.set_defaults(handler=cmd_demo)
+
+    for name, handler, help_text in (
+        ("ask", cmd_ask, "ask the maintenance assistant one question"),
+        ("evaluate-assistant", cmd_evaluate_assistant, "score the assistant on eval/golden.jsonl"),
+    ):
+        command = commands.add_parser(name, help=help_text)
+        if name == "ask":
+            command.add_argument("question")
+        else:
+            command.add_argument("--output", type=Path)
+        command.add_argument("--model", choices=("fake", "claude"), default="fake")
+        command.add_argument("--state-file", type=Path, default=DEMO_STATE_FILE)
+        command.set_defaults(handler=handler)
 
     simulate = commands.add_parser("simulate", help="publish the demo plant to the MQTT broker")
     simulate.add_argument("--windows", type=int, default=DEMO_WINDOWS)

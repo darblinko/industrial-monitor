@@ -67,3 +67,24 @@ def test_scan_ble_explains_the_missing_extra(monkeypatch, capsys):
 def test_scan_ble_rejects_a_malformed_map(capsys):
     with pytest.raises(SystemExit):
         main(["scan-ble", "--map", "pump-3"])
+
+
+def test_ask_answers_from_the_saved_plant_state_with_the_fake_model(capsys):
+    assert main(["ask", "Why is pump 3 alarming and what do I check?", "--model", "fake"]) == 0
+    output = capsys.readouterr().out
+    assert "[status:pump-3]" in output
+    assert "tools: get_machine_status, search_manual" in output
+
+
+def test_claude_model_requires_an_api_key(monkeypatch, capsys):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert main(["ask", "Is pump 1 running normally?", "--model", "claude"]) == 2
+    assert "ANTHROPIC_API_KEY" in capsys.readouterr().err
+
+
+def test_evaluate_assistant_writes_scores(tmp_path):
+    output = tmp_path / "assistant.json"
+    assert main(["evaluate-assistant", "--model", "fake", "--output", str(output)]) == 0
+    result = json.loads(output.read_text())
+    assert result["model"] == "fake-extractive"
+    assert result["summary"]["questions"] == 20

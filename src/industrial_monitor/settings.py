@@ -24,6 +24,7 @@ class Settings:
     site: str
     threshold: float
     claude_model: str
+    anthropic_api_key: str | None
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "Settings":
@@ -34,4 +35,5 @@ class Settings:
             site=env.get("SITE", "demo"),
             threshold=float(_number(env, "DETECTOR_THRESHOLD", str(CALIBRATED_THRESHOLD), float)),
             claude_model=env.get("CLAUDE_MODEL", DEFAULT_MODEL),
+            anthropic_api_key=env.get("ANTHROPIC_API_KEY") or None,
         )
