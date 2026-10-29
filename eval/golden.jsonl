@@ -1,0 +1,20 @@
+{"id": "q01", "question": "Why is pump 3 alarming and what do I check?", "machine": "pump-3", "answerable": true, "relevant": ["RP-3.2", "RP-3.1", "VG-2", "VG-3", "VG-7"], "expected_terms": ["bearing"]}
+{"id": "q02", "question": "Pump 4 is in alarm. What is the likely cause and what should I inspect?", "machine": "pump-4", "answerable": true, "relevant": ["RP-5.1", "RP-2.2", "RP-3.3", "VG-8"], "expected_terms": ["temperature"]}
+{"id": "q03", "question": "Fan 2 has an alarm. What does it mean and can it keep running?", "machine": "fan-2", "answerable": true, "relevant": ["RF-4.1", "RF-2.1", "VG-5"], "expected_terms": ["imbalance", "7.1"]}
+{"id": "q04", "question": "Which machines are alarming right now?", "machine": null, "answerable": true, "relevant": [], "expected_terms": ["pump-3", "pump-4", "fan-2"]}
+{"id": "q05", "question": "Is pump 1 running normally?", "machine": "pump-1", "answerable": true, "relevant": [], "expected_terms": ["normal"]}
+{"id": "q06", "question": "What is the vibration trip limit for the RP-1 pump?", "machine": null, "answerable": true, "relevant": ["RP-2.1"], "expected_terms": ["7.1"]}
+{"id": "q07", "question": "What is the outer race defect frequency of the RP-1 pump bearing?", "machine": null, "answerable": true, "relevant": ["RP-3.1"], "expected_terms": ["83.5"]}
+{"id": "q08", "question": "At what frequency does an outer race defect show on the RF-1 fan bearing?", "machine": null, "answerable": true, "relevant": ["RF-3.1"], "expected_terms": ["52.8"]}
+{"id": "q09", "question": "How often is the RP-1 drive-end bearing greased, and with how much grease?", "machine": null, "answerable": true, "relevant": ["RP-3.3"], "expected_terms": ["2000", "15 g"]}
+{"id": "q10", "question": "How do I field balance an RF-1 fan impeller?", "machine": null, "answerable": true, "relevant": ["RF-4.2"], "expected_terms": ["trial weight"]}
+{"id": "q11", "question": "What does an unclassified alarm mean?", "machine": null, "answerable": true, "relevant": ["VG-4", "VG-1"], "expected_terms": ["kurtosis"]}
+{"id": "q12", "question": "Pump 3 vibration velocity is below the alert limit. Can I ignore its bearing alarm?", "machine": "pump-3", "answerable": true, "relevant": ["VG-3", "RP-2.1", "RP-3.2"], "expected_terms": ["envelope"]}
+{"id": "q13", "question": "What isolation is needed before opening the RP-1 pump bearing housing?", "machine": null, "answerable": true, "relevant": ["RP-6.1", "RP-3.4"], "expected_terms": ["lock out"]}
+{"id": "q14", "question": "How can I tell imbalance from misalignment in the vibration spectrum?", "machine": null, "answerable": true, "relevant": ["VG-5", "RP-4.2", "RP-4.1"], "expected_terms": ["2x", "axial"]}
+{"id": "q15", "question": "What is the bearing temperature trip limit on the RF-1 fan?", "machine": null, "answerable": true, "relevant": ["RF-2.2"], "expected_terms": ["80 C"]}
+{"id": "q16", "question": "How hot can a new bearing be heated when mounting it on the RP-1 shaft?", "machine": null, "answerable": true, "relevant": ["RP-3.4"], "expected_terms": ["125 C"]}
+{"id": "q17", "question": "Why does the monitor wait for two of three windows before it alarms?", "machine": null, "answerable": true, "relevant": ["VG-6"], "expected_terms": ["transient"]}
+{"id": "q18", "question": "What torque is specified for the RP-1 impeller nut?", "machine": null, "answerable": false, "relevant": [], "expected_terms": []}
+{"id": "q19", "question": "What is the spare part number of the RF-1 motor?", "machine": null, "answerable": false, "relevant": [], "expected_terms": []}
+{"id": "q20", "question": "How do I calibrate the discharge pressure transmitter?", "machine": null, "answerable": false, "relevant": [], "expected_terms": []}
