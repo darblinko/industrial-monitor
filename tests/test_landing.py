@@ -101,3 +101,11 @@ def test_score_timeline_reports_alarms_before_and_after_the_fault_onset():
     assert "bearing wear from window 70" in subtitle
     assert "alarm from window 71" in subtitle
     assert "false alarm at windows 59 to 60" in subtitle
+
+
+def test_score_timeline_alt_text_states_the_peak_bearing_score():
+    timeline = score_timeline()
+    bearing = timeline["series"][0]["values"]
+    peak = max(bearing)
+    peak_window = timeline["x"][bearing.index(peak)]
+    assert f"peaks at {peak:g} at window {peak_window}" in timeline["alt"]

@@ -319,6 +319,12 @@ def _alarm_summary(messages: list[dict], plan: FaultPlan) -> str:
     return ", ".join(parts)
 
 
+def _peak_sentence(bearing_scores: list[float], messages: list[dict]) -> str:
+    peak = max(bearing_scores)
+    window = messages[bearing_scores.index(peak)]["window"]
+    return f"The bearing envelope z-score peaks at {peak:g} at window {window}."
+
+
 def score_timeline(windows: int = DEMO_WINDOWS, machine_id: str = FOCUS_MACHINE) -> dict:
     """Channel z-scores of a demo machine with an injected fault, from its anomaly topic."""
     messages = _anomaly_messages(windows, machine_id)
@@ -336,10 +342,7 @@ def score_timeline(windows: int = DEMO_WINDOWS, machine_id: str = FOCUS_MACHINE)
         "title": f"{machine} channel z-scores from the anomaly topic",
         "subtitle": f"Demo plant: {summary}",
         "source": DEMO_SOURCE,
-        "alt": (
-            f"{machine}: {summary}. The bearing envelope z-score reaches "
-            f"{series[0]['values'][-1]:g} at window {messages[-1]['window']}."
-        ),
+        "alt": f"{machine}: {summary}. {_peak_sentence(series[0]['values'], messages)}",
         "format": "decimal2",
         "x": [str(m["window"]) for m in messages],
         "series": series,
