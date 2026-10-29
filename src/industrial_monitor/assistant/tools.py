@@ -54,6 +54,7 @@ class Toolbox:
     """Executes tool calls against a plant state snapshot and a manual index."""
 
     def __init__(self, statuses: list[dict], index: BM25Index):
+        self.schemas = TOOL_SCHEMAS
         self._statuses = {status["machine_id"]: status for status in statuses}
         self._index = index
         self._tools: dict[str, Callable[[dict], object]] = {
