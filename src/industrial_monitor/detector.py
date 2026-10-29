@@ -63,7 +63,8 @@ def fit_baseline(observations: list[dict[str, float]]) -> Baseline:
     return Baseline(center, scale)
 
 
-def _hypothesis(channel_z: dict[str, float], threshold: float) -> str | None:
+def hypothesis_for(channel_z: dict[str, float], threshold: float) -> str | None:
+    """Fault class of the strongest exceeding channel, preferring specific signatures."""
     exceeding = {channel: z for channel, z in channel_z.items() if z > threshold}
     specific = {c: z for c, z in exceeding.items() if c not in GENERIC_CHANNELS}
     candidates = specific or exceeding
@@ -79,7 +80,7 @@ def assess(baseline: Baseline, observation: dict[str, float], threshold: float) 
         for channel in CHANNELS
     }
     score = max(channel_z.values())
-    hypothesis = _hypothesis(channel_z, threshold)
+    hypothesis = hypothesis_for(channel_z, threshold)
     return Assessment(score, hypothesis is not None, hypothesis, channel_z)
 
 
