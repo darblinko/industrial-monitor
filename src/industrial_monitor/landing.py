@@ -221,13 +221,13 @@ def pooled_peaks(
     return labels, values
 
 
-def _window_label(window: SimulatedWindow) -> str:
-    condition = window.condition
-    if condition.fault == "none":
-        return f"window {window.index}, healthy"
-    return (
-        f"window {window.index}, {FAULT_LABELS[condition.fault].lower()} {condition.severity:.2f}"
-    )
+def _condition_label(window: SimulatedWindow) -> str:
+    fault = window.condition.fault
+    return "healthy" if fault == "none" else FAULT_LABELS[fault].lower()
+
+
+def _windows_note(healthy: SimulatedWindow, faulty: SimulatedWindow) -> str:
+    return f"Windows {healthy.index} and {faulty.index} (severity {faulty.condition.severity:.2f})"
 
 
 def _spectrum_chart(name: str, title: str, subtitle: str, x: list[str], series: list) -> dict:
@@ -263,23 +263,24 @@ def spectrum_charts() -> list[dict]:
     for window in chosen:
         freqs, amplitude = amplitude_spectrum(window.samples_g, SAMPLE_RATE_HZ)
         x_raw, peaks = pooled_peaks(freqs, amplitude, 0.0, 600.0, 5.0)
-        raw.append((_window_label(window), peaks))
+        raw.append((_condition_label(window), peaks))
         freqs, amplitude = envelope_spectrum(window.samples_g, SAMPLE_RATE_HZ, band)
         x_env, peaks = pooled_peaks(freqs, amplitude, 0.0, 300.0, 2.5)
-        envelope.append((_window_label(window), peaks))
+        envelope.append((_condition_label(window), peaks))
     machine = FOCUS_MACHINE.replace("-", " ").capitalize()
+    windows = _windows_note(*chosen)
     return [
         _spectrum_chart(
             f"{FOCUS_MACHINE}-spectrum",
             f"{machine} acceleration spectrum, healthy and bearing-wear windows",
-            f"Peak amplitude in g per 5 Hz bin; resonance {spec.resonance_hz:g} Hz",
+            f"{windows}; peak g per 5 Hz bin; resonance {spec.resonance_hz:g} Hz",
             x_raw,
             raw,
         ),
         _spectrum_chart(
             f"{FOCUS_MACHINE}-envelope",
             f"{machine} envelope spectrum, healthy and bearing-wear windows",
-            f"Envelope of the {band[0]:g} to {band[1]:g} Hz band, peak in g per 2.5 Hz bin; "
+            f"{windows}; band {band[0]:g} to {band[1]:g} Hz; peak g per 2.5 Hz bin; "
             f"BPFO {spec.bpfo_hz():.1f} Hz",
             x_env,
             envelope,

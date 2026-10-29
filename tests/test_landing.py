@@ -59,6 +59,8 @@ def test_spectrum_charts_compare_a_healthy_and_a_faulty_window():
     bpfo_bin = envelope["x"].index("82.5")
     assert faulty[bpfo_bin] > 10 * healthy[bpfo_bin]
     assert len(charts["pump-3-spectrum"]["x"]) == 120
+    assert [series["name"] for series in envelope["series"]] == ["healthy", "bearing wear"]
+    assert envelope["subtitle"].startswith("Windows 60 and 159 (severity 1.00)")
 
 
 def test_score_timeline_follows_the_anomaly_topic_after_the_baseline():
