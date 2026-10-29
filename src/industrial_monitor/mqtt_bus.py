@@ -6,6 +6,7 @@ the paho network thread, so handlers run one at a time.
 
 import logging
 import threading
+import time
 
 import paho.mqtt.client as mqtt
 
@@ -26,6 +27,7 @@ class MqttBus:
         self._subscriptions: list[tuple[str, Handler]] = []
         self._pending_subscriptions: set[int] = set()
         self._connected = False
+        self._unacknowledged: list[mqtt.MQTTMessageInfo] = []
 
     def __enter__(self) -> "MqttBus":
         self.connect()
@@ -42,9 +44,24 @@ class MqttBus:
                 self.close()
                 raise ConnectionError(f"no connection to {self._host}:{self._port}")
 
-    def close(self) -> None:
+    def close(self, flush_timeout_s: float = 10.0) -> None:
+        """Wait for outstanding QoS 1 publishes, then disconnect."""
+        deadline = time.monotonic() + flush_timeout_s
+        for info in self._unacknowledged:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not self._wait(info, remaining):
+                logger.error("disconnecting with unacknowledged messages")
+                break
         self._client.disconnect()
         self._client.loop_stop()
+
+    @staticmethod
+    def _wait(info: mqtt.MQTTMessageInfo, timeout_s: float) -> bool:
+        try:
+            info.wait_for_publish(timeout_s)
+        except RuntimeError:
+            return False
+        return info.is_published()
 
     def _request(self, pattern: str) -> None:
         """Send SUBSCRIBE. The caller holds self._state."""
@@ -86,8 +103,12 @@ class MqttBus:
 
     def publish(self, topic: str, payload: bytes) -> None:
         info = self._client.publish(topic, payload, qos=QOS)
-        if info.rc != mqtt.MQTT_ERR_SUCCESS:
+        # While reconnecting, paho queues QoS 1 messages and reports MQTT_ERR_NO_CONN.
+        if info.rc not in (mqtt.MQTT_ERR_SUCCESS, mqtt.MQTT_ERR_NO_CONN):
             raise ConnectionError(f"publish to {topic} failed: {mqtt.error_string(info.rc)}")
+        if len(self._unacknowledged) >= 1000:
+            self._unacknowledged = [i for i in self._unacknowledged if not i.is_published()]
+        self._unacknowledged.append(info)
 
     def _on_message(self, client, userdata, message: mqtt.MQTTMessage) -> None:
         with self._state:
