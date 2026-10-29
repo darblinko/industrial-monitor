@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from industrial_monitor.demo import DEMO_PLANS, run_demo
+from industrial_monitor.monitor import load_snapshot
+
+EVAL_STATE = Path(__file__).resolve().parents[1] / "eval" / "plant-state.json"
 
 
 def test_demo_plant_ends_with_one_alarm_per_injected_fault():
@@ -8,6 +13,7 @@ def test_demo_plant_ends_with_one_alarm_per_injected_fault():
     assert {m: h for m, (state, h) in states.items() if state == "alarm"} == expected_alarms
     assert expected_alarms["pump-3"] == "bearing_wear"
     assert monitor.rejected == {}
+    assert load_snapshot(EVAL_STATE) == monitor.snapshot()
 
 
 def test_publish_demo_paces_windows_with_the_given_interval():

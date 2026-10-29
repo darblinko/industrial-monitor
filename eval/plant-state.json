@@ -1,0 +1,140 @@
+[
+  {
+    "machine_id": "pump-1",
+    "equipment": "RP-1 centrifugal pump",
+    "state": "normal",
+    "hypothesis": null,
+    "alarm_since_window": null,
+    "window": 159,
+    "windows": 160,
+    "threshold": 2.55,
+    "channel_z": {
+      "amp_1x_g": -0.43,
+      "bearing_envelope": 0.01,
+      "temperature_c": -0.72,
+      "kurtosis": 1.4
+    },
+    "temperature_c": 40.84,
+    "velocity_rms_mm_s": 2.23,
+    "shaft_hz": 24.94,
+    "amp_1x_g": 0.0477,
+    "bearing_envelope": 5.18,
+    "kurtosis": 2.45,
+    "bpfo_hz": 83.53
+  },
+  {
+    "machine_id": "pump-2",
+    "equipment": "RP-1 centrifugal pump",
+    "state": "normal",
+    "hypothesis": null,
+    "alarm_since_window": null,
+    "window": 159,
+    "windows": 160,
+    "threshold": 2.55,
+    "channel_z": {
+      "amp_1x_g": 0.42,
+      "bearing_envelope": 0.67,
+      "temperature_c": 0.3,
+      "kurtosis": 0.33
+    },
+    "temperature_c": 43.08,
+    "velocity_rms_mm_s": 2.85,
+    "shaft_hz": 24.61,
+    "amp_1x_g": 0.0614,
+    "bearing_envelope": 5.58,
+    "kurtosis": 2.31,
+    "bpfo_hz": 83.53
+  },
+  {
+    "machine_id": "pump-3",
+    "equipment": "RP-1 centrifugal pump",
+    "state": "alarm",
+    "hypothesis": "bearing_wear",
+    "alarm_since_window": 71,
+    "window": 159,
+    "windows": 160,
+    "threshold": 2.55,
+    "channel_z": {
+      "amp_1x_g": -1.32,
+      "bearing_envelope": 19.21,
+      "temperature_c": -1.05,
+      "kurtosis": 20.77
+    },
+    "temperature_c": 41.88,
+    "velocity_rms_mm_s": 2.29,
+    "shaft_hz": 24.61,
+    "amp_1x_g": 0.0427,
+    "bearing_envelope": 113.3,
+    "kurtosis": 7.85,
+    "bpfo_hz": 83.53
+  },
+  {
+    "machine_id": "pump-4",
+    "equipment": "RP-1 centrifugal pump",
+    "state": "alarm",
+    "hypothesis": "temperature_drift",
+    "alarm_since_window": 92,
+    "window": 159,
+    "windows": 160,
+    "threshold": 2.55,
+    "channel_z": {
+      "amp_1x_g": 0.69,
+      "bearing_envelope": 0.73,
+      "temperature_c": 43.16,
+      "kurtosis": -0.43
+    },
+    "temperature_c": 59.04,
+    "velocity_rms_mm_s": 2.16,
+    "shaft_hz": 24.61,
+    "amp_1x_g": 0.0476,
+    "bearing_envelope": 5.7,
+    "kurtosis": 2.17,
+    "bpfo_hz": 83.53
+  },
+  {
+    "machine_id": "fan-1",
+    "equipment": "RF-1 centrifugal fan",
+    "state": "normal",
+    "hypothesis": null,
+    "alarm_since_window": null,
+    "window": 159,
+    "windows": 160,
+    "threshold": 2.55,
+    "channel_z": {
+      "amp_1x_g": -0.05,
+      "bearing_envelope": -0.39,
+      "temperature_c": -0.59,
+      "kurtosis": -0.34
+    },
+    "temperature_c": 37.69,
+    "velocity_rms_mm_s": 2.75,
+    "shaft_hz": 16.41,
+    "amp_1x_g": 0.0402,
+    "bearing_envelope": 5.84,
+    "kurtosis": 2.12,
+    "bpfo_hz": 52.8
+  },
+  {
+    "machine_id": "fan-2",
+    "equipment": "RF-1 centrifugal fan",
+    "state": "alarm",
+    "hypothesis": "imbalance",
+    "alarm_since_window": 90,
+    "window": 159,
+    "windows": 160,
+    "threshold": 2.55,
+    "channel_z": {
+      "amp_1x_g": 10.7,
+      "bearing_envelope": 1.67,
+      "temperature_c": 1.26,
+      "kurtosis": -4.25
+    },
+    "temperature_c": 39.38,
+    "velocity_rms_mm_s": 8.9,
+    "shaft_hz": 16.41,
+    "amp_1x_g": 0.1316,
+    "bearing_envelope": 8.82,
+    "kurtosis": 1.57,
+    "bpfo_hz": 52.8
+  }
+]
