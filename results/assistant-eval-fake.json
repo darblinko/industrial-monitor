@@ -35,6 +35,7 @@
       "cited_machines": [
         "pump-3"
       ],
+      "malformed_citations": [],
       "relevant_cited": 2,
       "invalid_citations": [],
       "sentences": 6,
@@ -78,6 +79,7 @@
       "cited_machines": [
         "pump-4"
       ],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 6,
@@ -120,6 +122,7 @@
       "cited_machines": [
         "fan-2"
       ],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 6,
@@ -157,6 +160,7 @@
         "pump-4",
         "fan-2"
       ],
+      "malformed_citations": [],
       "relevant_cited": 0,
       "invalid_citations": [],
       "sentences": 3,
@@ -183,6 +187,7 @@
       "cited_machines": [
         "pump-1"
       ],
+      "malformed_citations": [],
       "relevant_cited": 0,
       "invalid_citations": [],
       "sentences": 1,
@@ -214,6 +219,7 @@
         "RP-2.2"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -245,6 +251,7 @@
         "RP-3.1"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -276,6 +283,7 @@
         "VG-2"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -306,6 +314,7 @@
         "RP-3.3"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 2,
@@ -337,6 +346,7 @@
         "RF-4.2"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -369,6 +379,7 @@
         "VG-1"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 2,
       "invalid_citations": [],
       "sentences": 4,
@@ -404,6 +415,7 @@
       "cited_machines": [
         "pump-3"
       ],
+      "malformed_citations": [],
       "relevant_cited": 2,
       "invalid_citations": [],
       "sentences": 6,
@@ -443,6 +455,7 @@
         "VG-7"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -475,6 +488,7 @@
         "VG-5"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 2,
@@ -506,6 +520,7 @@
         "RF-2.2"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -536,6 +551,7 @@
         "RP-3.4"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 2,
@@ -567,6 +583,7 @@
         "VG-4"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 1,
       "invalid_citations": [],
       "sentences": 4,
@@ -593,6 +610,7 @@
       "relevant": [],
       "cited": [],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 0,
       "invalid_citations": [],
       "sentences": 0,
@@ -619,6 +637,7 @@
       "relevant": [],
       "cited": [],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 0,
       "invalid_citations": [],
       "sentences": 0,
@@ -647,6 +666,7 @@
         "RP-5.1"
       ],
       "cited_machines": [],
+      "malformed_citations": [],
       "relevant_cited": 0,
       "invalid_citations": [],
       "sentences": 2,

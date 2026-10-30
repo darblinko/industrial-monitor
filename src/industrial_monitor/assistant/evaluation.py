@@ -2,8 +2,9 @@
 
 Metrics, all micro-averaged over questions:
 - citation precision and recall: cited passage IDs against the golden relevant set
-- citation validity: share of citations (passages and machine states) that were retrieved by
-  a tool call in the same run, so a fabricated citation counts against it
+- citation validity: share of bracketed citations that name a passage or machine state
+  retrieved by a tool call in the same run, so a fabricated or malformed citation counts
+  against it
 - sentence coverage: share of answer sentences that carry a citation
 - lexical support: share of sentences whose content words appear mostly (SUPPORT_THRESHOLD)
   in the text they cite; a proxy for groundedness that does not judge meaning
@@ -21,9 +22,9 @@ from industrial_monitor.assistant.agent import DECLINE, AgentRun, Model, Tools, 
 from industrial_monitor.assistant.corpus import tokenize
 
 SUPPORT_THRESHOLD = 0.6
-_PASSAGE_CITATION = re.compile(r"\[([A-Z]{2}-\d+(?:\.\d+)?)\]")
-_STATE_CITATION = re.compile(r"\[status:([a-z]+-\d+)\]")
-_ANY_CITATION = re.compile(r"\[[^\]]+\]")
+_PASSAGE_ID = re.compile(r"[A-Z]{2}-\d+(?:\.\d+)?")
+_STATE_ID = re.compile(r"status:([a-z]+-\d+)")
+_ANY_CITATION = re.compile(r"\[([^\]]+)\]")
 _SENTENCE_BREAK = re.compile(r"(?<=[.!?])\s+")
 
 
@@ -42,9 +43,27 @@ def load_golden(path: Path) -> list[GoldenQuestion]:
     return [GoldenQuestion(**json.loads(line)) for line in lines if line.strip()]
 
 
+def citation_candidates(text: str) -> list[str]:
+    """Contents of every bracketed span, in order of first appearance."""
+    return list(dict.fromkeys(_ANY_CITATION.findall(text)))
+
+
+def classify_citations(text: str) -> tuple[list[str], list[str], list[str]]:
+    """Passage IDs, machine IDs and malformed citations, from one pass over the candidates."""
+    passages, machines, malformed = [], [], []
+    for candidate in citation_candidates(text):
+        state = _STATE_ID.fullmatch(candidate)
+        if state:
+            machines.append(state[1])
+        elif _PASSAGE_ID.fullmatch(candidate):
+            passages.append(candidate)
+        else:
+            malformed.append(candidate)
+    return passages, machines, malformed
+
+
 def parse_citations(answer: str) -> tuple[list[str], list[str]]:
-    passages = list(dict.fromkeys(_PASSAGE_CITATION.findall(answer)))
-    machines = list(dict.fromkeys(_STATE_CITATION.findall(answer)))
+    passages, machines, _ = classify_citations(answer)
     return passages, machines
 
 
@@ -82,7 +101,7 @@ def _supported(sentence: str, passages: dict[str, str], states: dict[str, str]) 
 
 def score_run(question: GoldenQuestion, run: AgentRun) -> dict:
     passages, states = _retrieved(run)
-    cited, machines = parse_citations(run.answer)
+    cited, machines, malformed = classify_citations(run.answer)
     declined = is_decline(run.answer)
     sentences = [] if declined else [s for s in _SENTENCE_BREAK.split(run.answer) if s.strip()]
     lowered = run.answer.lower()
@@ -94,9 +113,11 @@ def score_run(question: GoldenQuestion, run: AgentRun) -> dict:
         "relevant": question.relevant,
         "cited": cited,
         "cited_machines": machines,
+        "malformed_citations": malformed,
         "relevant_cited": len(set(cited) & set(question.relevant)),
         "invalid_citations": [p for p in cited if p not in passages]
-        + [f"status:{m}" for m in machines if m not in states],
+        + [f"status:{m}" for m in machines if m not in states]
+        + malformed,
         "sentences": len(sentences),
         "cited_sentences": sum(bool(_ANY_CITATION.search(s)) for s in sentences),
         "supported_sentences": sum(_supported(s, passages, states) for s in sentences),
@@ -112,11 +133,17 @@ def _ratio(numerator: float, denominator: float) -> float | None:
     return numerator / denominator if denominator else None
 
 
+def _any_citation(score: dict) -> bool:
+    return bool(score["cited"] or score["cited_machines"] or score["malformed_citations"])
+
+
 def summarize(scores: list[dict]) -> dict:
     with_relevant = [s for s in scores if s["relevant"]]
     answerable = [s for s in scores if s["answerable"]]
     unanswerable = [s for s in scores if not s["answerable"]]
-    citations = sum(len(s["cited"]) + len(s["cited_machines"]) for s in scores)
+    citations = sum(
+        len(s["cited"]) + len(s["cited_machines"]) + len(s["malformed_citations"]) for s in scores
+    )
     with_terms = [s for s in scores if s["expected_terms_found"] is not None]
     sentences = sum(s["sentences"] for s in scores)
     return {
@@ -140,8 +167,7 @@ def summarize(scores: list[dict]) -> dict:
             sum(s["expected_terms_found"] for s in with_terms), len(with_terms)
         ),
         "unanswerable_declined": _ratio(
-            sum(s["declined"] and not (s["cited"] or s["cited_machines"]) for s in unanswerable),
-            len(unanswerable),
+            sum(s["declined"] and not _any_citation(s) for s in unanswerable), len(unanswerable)
         ),
         "answerable_declined": _ratio(sum(s["declined"] for s in answerable), len(answerable)),
         "refusals": sum(s["stop_reason"] == "refusal" for s in scores),

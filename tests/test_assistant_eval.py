@@ -92,3 +92,12 @@ def test_only_the_exact_decline_reply_counts_as_a_decline():
     assert hedged_score["declined"] is False
     assert hedged_score["sentences"] == 2
     assert summarize([hedged_score])["unanswerable_declined"] == pytest.approx(0.0)
+
+
+def test_unknown_and_malformed_citations_count_as_invalid():
+    answer = "The trip limit is 7.1 mm/s [RP-2.1]. Invented fact [bogus]."
+    score = score_run(question(), run(answer))
+    assert score["invalid_citations"] == ["bogus"]
+    summary = summarize([score])
+    assert summary["citation_validity"] == pytest.approx(1 / 2)
+    assert summary["sentence_coverage"] == pytest.approx(1.0)

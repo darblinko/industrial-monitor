@@ -169,11 +169,11 @@ Source: `results/assistant-eval-fake.json`
 |---|---|
 | Citation precision | On the 15 questions with a relevant passage set: cited passages in that set, over all cited passages |
 | Citation recall | On the same 15 questions: relevant passages cited, over all relevant passages |
-| Citation validity | Citations of passages and machine states that the run retrieved, over all citations |
+| Citation validity | Citations of passages and machine states that the run retrieved, over all bracketed citations, malformed ones included |
 | Sentences with a citation | Answer sentences containing at least one citation, over all answer sentences |
 | Lexical support | Answer sentences with at least 60% of their non-stopword tokens found in the retrieved sources they cite, over all answer sentences |
 | Expected terms found | Answerable questions whose answer contains every expected term, over the 17 answerable questions |
-| Unanswerable questions declined | Unanswerable questions answered with "The manual does not cover this." and no citation, over the 3 unanswerable questions |
+| Unanswerable questions declined | Unanswerable questions answered with exactly "The manual does not cover this." and no citation, over the 3 unanswerable questions |
 | Answerable questions declined | Answerable questions answered with the decline phrase, over the 17 answerable questions |
 
 The extractive model missed expected terms on 4 of 17 answerable questions (q03, q10, q13 and q17) and answered unanswerable question q20, on pressure transmitter calibration, by citing RP-5.1, a passage on bearing housing temperature. Sentences with a citation and lexical support are 100% by construction for a model that copies manual sentences; for a generative model they become the groundedness checks.
