@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 # search band (16.5 Hz, plus or minus 2%); shorter bursts can leave that band without a bin.
 MIN_BURST_SAMPLES = 512
 DUPLICATE_HISTORY = 64
+BASELINE_WINDOWS = 40
 
 
 @dataclass(frozen=True)
@@ -42,7 +43,7 @@ class MonitorConfig:
     site: str
     threshold: float
     persistence: tuple[int, int] = (2, 3)
-    baseline_windows: int = 40
+    baseline_windows: int = BASELINE_WINDOWS
 
     def __post_init__(self) -> None:
         check_threshold(self.threshold)

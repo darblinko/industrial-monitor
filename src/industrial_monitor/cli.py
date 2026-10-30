@@ -18,7 +18,13 @@ from industrial_monitor.detection_eval import (
 )
 from industrial_monitor.landing import build_landing_data
 from industrial_monitor.machines import FLEET
-from industrial_monitor.monitor import MonitorConfig, PlantMonitor, load_snapshot, save_snapshot
+from industrial_monitor.monitor import (
+    BASELINE_WINDOWS,
+    MonitorConfig,
+    PlantMonitor,
+    load_snapshot,
+    save_snapshot,
+)
 from industrial_monitor.resources import data_path
 from industrial_monitor.settings import Settings
 
@@ -26,6 +32,19 @@ DEFAULT_STATE_FILE = Path("results/scratch/plant-state.json")
 DEMO_STATE_FILE = data_path("eval/plant-state.json")
 CORPUS_DIR = data_path("corpus")
 GOLDEN_FILE = data_path("eval/golden.jsonl")
+
+
+def _int_at_least(minimum: int):
+    def parse(text: str) -> int:
+        try:
+            value = int(text)
+        except ValueError as error:
+            raise argparse.ArgumentTypeError(f"must be an integer, got {text!r}") from error
+        if value < minimum:
+            raise argparse.ArgumentTypeError(f"must be at least {minimum}, got {value}")
+        return value
+
+    return parse
 
 
 def _write_json(path: Path, data: dict | list) -> None:
@@ -221,13 +240,13 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate = commands.add_parser(
         "evaluate-detector", help="measure detection and false-alarm rates on labeled windows"
     )
-    evaluate.add_argument("--machines-per-fault", type=int, default=MACHINES_PER_FAULT)
-    evaluate.add_argument("--test-windows", type=int, default=TEST_WINDOWS)
+    evaluate.add_argument("--machines-per-fault", type=_int_at_least(1), default=MACHINES_PER_FAULT)
+    evaluate.add_argument("--test-windows", type=_int_at_least(1), default=TEST_WINDOWS)
     evaluate.add_argument("--output", type=Path, default=Path("results/detection.json"))
     evaluate.set_defaults(handler=cmd_evaluate_detector)
 
     demo = commands.add_parser("demo", help="replay the demo plant in process, print states")
-    demo.add_argument("--windows", type=int, default=DEMO_WINDOWS)
+    demo.add_argument("--windows", type=_int_at_least(1), default=DEMO_WINDOWS)
     demo.add_argument("--save", type=Path, help="write the final plant state to this file")
     demo.set_defaults(handler=cmd_demo)
 
@@ -253,7 +272,7 @@ def build_parser() -> argparse.ArgumentParser:
         command.set_defaults(handler=handler)
 
     simulate = commands.add_parser("simulate", help="publish the demo plant to the MQTT broker")
-    simulate.add_argument("--windows", type=int, default=DEMO_WINDOWS)
+    simulate.add_argument("--windows", type=_int_at_least(1), default=DEMO_WINDOWS)
     simulate.add_argument("--interval", type=float, default=0.5, help="seconds between windows")
     simulate.set_defaults(handler=cmd_simulate)
 
@@ -275,7 +294,12 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--output", type=Path, default=Path("docs/data.json"))
     export.add_argument("--revision", help="commit the numbers were measured at; default HEAD")
     export.add_argument("--measured", help="measurement date; default today")
-    export.add_argument("--windows", type=int, default=DEMO_WINDOWS)
+    export.add_argument(
+        "--windows",
+        type=_int_at_least(BASELINE_WINDOWS + 1),
+        default=DEMO_WINDOWS,
+        help=f"demo windows to replay; the score timeline needs more than {BASELINE_WINDOWS}",
+    )
     export.set_defaults(handler=cmd_export_landing)
     return parser
 

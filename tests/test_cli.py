@@ -141,3 +141,22 @@ def test_ask_names_the_plant_state_it_answered_from(tmp_path, capsys):
     state_file.write_text((ROOT / "eval" / "plant-state.json").read_text())
     assert main(["ask", "Is pump 1 running normally?", "--state-file", str(state_file)]) == 0
     assert f"plant state: {state_file}" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["demo", "--windows", "0"],
+        ["demo", "--windows", "-1"],
+        ["simulate", "--windows", "0"],
+        ["evaluate-detector", "--machines-per-fault", "0"],
+        ["evaluate-detector", "--test-windows", "0"],
+        ["export-landing", "--windows", "40"],
+    ],
+)
+def test_out_of_range_window_counts_are_rejected_by_the_parser(argv, capsys, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(SystemExit) as error:
+        main(argv)
+    assert error.value.code == 2
+    assert "must be" in capsys.readouterr().err
