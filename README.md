@@ -180,7 +180,7 @@ The extractive model missed expected terms on 4 of 17 answerable questions (q03,
 
 ## Quickstart
 
-Verified from a clean clone on 2026-10-28 with Python 3.12 and uv. None of these steps needs a broker, a sensor or an API key.
+Verified from a clean clone on 2026-10-30 with Python 3.12 and uv. None of these steps needs a broker, a sensor or an API key.
 
 ```bash
 git clone https://github.com/darblinko/industrial-monitor
