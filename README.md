@@ -211,9 +211,10 @@ Regenerate the result files and the chart data:
 uv run industrial-monitor evaluate-detector   # writes results/detection.json
 uv run industrial-monitor evaluate-assistant  # writes results/assistant-eval-fake.json
 uv run industrial-monitor export-landing      # writes docs/data.json
+python3 tools/publish-kit/svgchart.py docs/data.json docs/figures
 ```
 
-The SVG files in `docs/figures` are static renderings of `docs/data.json` for this README.
+The SVG files in `docs/figures` are static renderings of `docs/data.json` for this README, written by the last command. The chart data schema is in [tools/publish-kit/README.md](tools/publish-kit/README.md).
 
 **MQTT.** `docker compose up -d` starts Mosquitto on 127.0.0.1:1883 with [mosquitto/mosquitto.conf](mosquitto/mosquitto.conf), which allows anonymous clients and is meant for local development only. Then run the monitor and the simulator in two terminals:
 
@@ -245,6 +246,7 @@ Set `MQTT_HOST=127.0.0.1` to include the broker tests in `pytest`.
 | [results/](results/) | Detector and assistant evaluation outputs |
 | [tests/](tests/) | 121 pytest tests; the broker tests run only when `MQTT_HOST` is set |
 | [docs/](docs/) | Landing page, `data.json` and the README figures |
+| [tools/publish-kit/](tools/publish-kit/) | SVG figure renderer and the `docs/data.json` schema |
 | [docker-compose.yml](docker-compose.yml), [mosquitto/](mosquitto/) | Local Mosquitto broker |
 
 ## Design decisions and limitations
