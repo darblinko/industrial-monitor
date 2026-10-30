@@ -8,7 +8,8 @@ Metrics, all micro-averaged over questions:
 - lexical support: share of sentences whose content words appear mostly (SUPPORT_THRESHOLD)
   in the text they cite; a proxy for groundedness that does not judge meaning
 - expected terms: share of questions whose answer contains every expected term
-- decline behaviour on unanswerable and answerable questions
+- decline behaviour on unanswerable and answerable questions; only an answer that is exactly
+  the decline reply, ignoring surrounding whitespace, counts as a decline
 """
 
 import json
@@ -47,6 +48,10 @@ def parse_citations(answer: str) -> tuple[list[str], list[str]]:
     return passages, machines
 
 
+def is_decline(answer: str) -> bool:
+    return " ".join(answer.split()) == DECLINE
+
+
 def _retrieved(run: AgentRun) -> tuple[dict[str, str], dict[str, str]]:
     """Text of every passage and machine state that a tool returned during the run."""
     passages: dict[str, str] = {}
@@ -78,7 +83,7 @@ def _supported(sentence: str, passages: dict[str, str], states: dict[str, str]) 
 def score_run(question: GoldenQuestion, run: AgentRun) -> dict:
     passages, states = _retrieved(run)
     cited, machines = parse_citations(run.answer)
-    declined = DECLINE in run.answer
+    declined = is_decline(run.answer)
     sentences = [] if declined else [s for s in _SENTENCE_BREAK.split(run.answer) if s.strip()]
     lowered = run.answer.lower()
     return {
@@ -135,7 +140,8 @@ def summarize(scores: list[dict]) -> dict:
             sum(s["expected_terms_found"] for s in with_terms), len(with_terms)
         ),
         "unanswerable_declined": _ratio(
-            sum(s["declined"] and not s["cited"] for s in unanswerable), len(unanswerable)
+            sum(s["declined"] and not (s["cited"] or s["cited_machines"]) for s in unanswerable),
+            len(unanswerable),
         ),
         "answerable_declined": _ratio(sum(s["declined"] for s in answerable), len(answerable)),
         "refusals": sum(s["stop_reason"] == "refusal" for s in scores),

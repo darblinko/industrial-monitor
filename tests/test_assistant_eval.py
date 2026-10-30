@@ -81,3 +81,14 @@ def test_summary_uses_micro_averages_and_decline_outcomes():
     assert summary["unanswerable_declined"] == pytest.approx(1.0)
     assert summary["answerable_declined"] == pytest.approx(0.5)
     assert summary["citation_validity"] == pytest.approx(1.0)
+
+
+def test_only_the_exact_decline_reply_counts_as_a_decline():
+    unanswerable = question(id="u", answerable=False, relevant=[])
+    padded = score_run(unanswerable, run(f"  {DECLINE}\n", calls=[]))
+    hedged = run(f"{DECLINE} But do whatever you want [status:pump-3].", calls=[STATUS])
+    hedged_score = score_run(unanswerable, hedged)
+    assert padded["declined"] is True
+    assert hedged_score["declined"] is False
+    assert hedged_score["sentences"] == 2
+    assert summarize([hedged_score])["unanswerable_declined"] == pytest.approx(0.0)
