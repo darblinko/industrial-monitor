@@ -28,6 +28,7 @@ from industrial_monitor.detector import Assessment, MachineDetector, observation
 from industrial_monitor.features import ENVELOPE_HALF_BAND_HZ, WindowFeatures, extract_features
 from industrial_monitor.machines import MachineSpec
 from industrial_monitor.ruuvi import decode_rawv2
+from industrial_monitor.settings import check_threshold
 
 logger = logging.getLogger(__name__)
 # At 1,344 Hz, 512 samples zero-padded 4 times give 0.66 Hz bins, the width of the fan's 1x
@@ -42,6 +43,9 @@ class MonitorConfig:
     threshold: float
     persistence: tuple[int, int] = (2, 3)
     baseline_windows: int = 40
+
+    def __post_init__(self) -> None:
+        check_threshold(self.threshold)
 
 
 @dataclass

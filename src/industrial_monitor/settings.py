@@ -1,5 +1,6 @@
 """Runtime configuration from environment variables. See .env.example."""
 
+import math
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -15,6 +16,13 @@ def _number(env: Mapping[str, str], name: str, default: str, kind: type) -> int 
         return kind(raw)
     except ValueError as error:
         raise ValueError(f"{name} must be a {kind.__name__}, got {raw!r}") from error
+
+
+def check_threshold(threshold: float, name: str = "threshold") -> float:
+    """Return the threshold, or raise ValueError unless it is finite and positive."""
+    if not math.isfinite(threshold) or threshold <= 0:
+        raise ValueError(f"{name} must be a finite number above 0, got {threshold}")
+    return threshold
 
 
 @dataclass(frozen=True)
@@ -33,7 +41,10 @@ class Settings:
             mqtt_host=env.get("MQTT_HOST", "localhost"),
             mqtt_port=int(_number(env, "MQTT_PORT", "1883", int)),
             site=env.get("SITE", "demo"),
-            threshold=float(_number(env, "DETECTOR_THRESHOLD", str(CALIBRATED_THRESHOLD), float)),
+            threshold=check_threshold(
+                float(_number(env, "DETECTOR_THRESHOLD", str(CALIBRATED_THRESHOLD), float)),
+                "DETECTOR_THRESHOLD",
+            ),
             claude_model=env.get("CLAUDE_MODEL", DEFAULT_MODEL),
             anthropic_api_key=env.get("ANTHROPIC_API_KEY") or None,
         )
