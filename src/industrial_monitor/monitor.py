@@ -13,14 +13,19 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
-from industrial_monitor.burst import decode_burst
+import numpy as np
+
+from industrial_monitor.burst import VibrationBurst, decode_burst
 from industrial_monitor.bus import Bus
 from industrial_monitor.detector import Assessment, MachineDetector, observation_from
-from industrial_monitor.features import WindowFeatures, extract_features
+from industrial_monitor.features import ENVELOPE_HALF_BAND_HZ, WindowFeatures, extract_features
 from industrial_monitor.machines import MachineSpec
 from industrial_monitor.ruuvi import decode_rawv2
 
 logger = logging.getLogger(__name__)
+# At 1,344 Hz, 512 samples zero-padded 4 times give 0.66 Hz bins, the width of the fan's 1x
+# search band (16.5 Hz, plus or minus 2%); shorter bursts can leave that band without a bin.
+MIN_BURST_SAMPLES = 512
 
 
 @dataclass(frozen=True)
@@ -41,6 +46,17 @@ class _MachineState:
     assessment: Assessment | None = None
     alarm_since_window: int | None = None
     sequence: int | None = None
+
+
+def burst_problem(burst: VibrationBurst, spec: MachineSpec) -> str | None:
+    """Reason a decoded burst cannot be scored for this machine, or None if it can."""
+    if len(burst.samples_mg) < MIN_BURST_SAMPLES:
+        return "burst_too_short"
+    if burst.sample_rate_hz / 2 <= spec.resonance_hz + ENVELOPE_HALF_BAND_HZ:
+        return "sample_rate_too_low"
+    if np.ptp(burst.samples_mg) == 0:
+        return "flat_signal"
+    return None
 
 
 def _rounded(value: float | None, digits: int) -> float | None:
@@ -96,8 +112,16 @@ class PlantMonitor:
         if state.temperature_c is None:
             self._reject("no_temperature", topic)
             return
+        problem = burst_problem(burst, state.spec)
+        if problem is not None:
+            self._reject(problem, topic)
+            return
         features = extract_features(burst.samples_g(), burst.sample_rate_hz, state.spec)
-        assessment = state.detector.update(observation_from(features, state.temperature_c))
+        try:
+            assessment = state.detector.update(observation_from(features, state.temperature_c))
+        except ValueError:
+            self._reject("invalid_features", topic)
+            return
         self._record(state, burst.sequence, features, assessment)
         anomaly_topic = f"plant/{self._config.site}/{state.spec.machine_id}/anomaly"
         self._bus.publish(anomaly_topic, json.dumps(self._snapshot(state)).encode())

@@ -79,3 +79,42 @@ def test_snapshot_file_round_trip(tmp_path):
     save_snapshot(path, monitor.snapshot())
     assert load_snapshot(path) == monitor.snapshot()
     assert [p.name for p in path.parent.iterdir()] == ["plant.json"]
+
+
+def _burst_topic_and_payload(machine, sequence, samples_g, rate_hz=1344):
+    import numpy as np
+
+    from industrial_monitor.burst import VibrationBurst, encode_burst
+
+    burst = VibrationBurst.from_g(machine.mac, sequence, rate_hz, np.asarray(samples_g))
+    return f"plant/t/{machine.machine_id}/vibration", encode_burst(burst)
+
+
+def _healthy_monitor(windows):
+    plant = [(PUMP_3, FaultPlan("none", 0, 1))]
+    bus = InProcessBus()
+    monitor = PlantMonitor(bus, {"pump-3": PUMP_3}, CONFIG)
+    stream = list(plant_messages(plant, windows=windows, seed=5, site="t"))
+    return bus, monitor, stream
+
+
+def test_invalid_bursts_are_rejected_without_entering_the_baseline():
+    bus, monitor, stream = _healthy_monitor(windows=CONFIG.baseline_windows + 5)
+    bus.publish(*stream[0][0])
+    bus.publish(*_burst_topic_and_payload(PUMP_3, 900, [0.1]))
+    bus.publish(*_burst_topic_and_payload(PUMP_3, 901, [0.1] * 1024))
+    bus.publish(*_burst_topic_and_payload(PUMP_3, 902, [0.0, 0.1] * 512, rate_hz=0))
+    bus.publish(*_burst_topic_and_payload(PUMP_3, 903, [0.0, 0.1] * 512, rate_hz=200))
+    assert monitor.rejected == {
+        "burst_too_short": 1,
+        "flat_signal": 1,
+        "burst_decode": 1,
+        "sample_rate_too_low": 1,
+    }
+    assert monitor.status("pump-3")["windows"] == 0
+    for messages in stream:
+        for topic, payload in messages:
+            bus.publish(topic, payload)
+    status = monitor.status("pump-3")
+    assert status["state"] == "normal"
+    assert status["windows"] == len(stream)

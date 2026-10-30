@@ -48,6 +48,16 @@ def observation_from(features: WindowFeatures, temperature_c: float) -> dict[str
     }
 
 
+def validate_observation(observation: dict[str, float]) -> None:
+    """Raise ValueError unless every channel is finite and every log channel is positive."""
+    for channel in CHANNELS:
+        value = observation[channel]
+        if not math.isfinite(value):
+            raise ValueError(f"{channel} is not finite: {value}")
+        if channel in LOG_CHANNELS and value <= 0:
+            raise ValueError(f"{channel} must be positive for its log scale, got {value}")
+
+
 def _transform(channel: str, value: float) -> float:
     return math.log(value) if channel in LOG_CHANNELS else value
 
@@ -100,6 +110,8 @@ class MachineDetector:
         return self._baseline is None
 
     def update(self, observation: dict[str, float]) -> Assessment | None:
+        """Raises ValueError for an invalid observation, leaving the detector unchanged."""
+        validate_observation(observation)
         if self._baseline is None:
             self._training.append(observation)
             if len(self._training) >= self.baseline_windows:

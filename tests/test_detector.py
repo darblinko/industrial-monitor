@@ -84,3 +84,23 @@ def test_persistence_requires_repeated_exceedance():
     assert detector.update(observation(temperature_c=60.0)).alarm is False
     assert detector.update(observation(temperature_c=40.0)).alarm is False
     assert detector.update(observation(temperature_c=60.0)).alarm is True
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"amp_1x_g": 0.0},
+        {"bearing_envelope": -1.0},
+        {"kurtosis": math.nan},
+        {"temperature_c": math.inf},
+    ],
+)
+def test_detector_rejects_invalid_observations_without_storing_them(bad):
+    detector = MachineDetector(baseline_windows=3, threshold=3.0, persistence=(1, 1))
+    detector.update(observation())
+    with pytest.raises(ValueError, match=next(iter(bad))):
+        detector.update(observation(**bad))
+    detector.update(observation(temperature_c=41.0))
+    detector.update(observation(temperature_c=39.0))
+    assert not detector.learning
+    assert detector.update(observation()) is not None

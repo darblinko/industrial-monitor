@@ -57,6 +57,10 @@ def decode_burst(frame: bytes) -> VibrationBurst:
     version, mac, sequence, rate, count = _HEADER.unpack_from(frame)
     if version != VERSION:
         raise ValueError(f"unsupported burst frame version {version}")
+    if rate == 0:
+        raise ValueError("burst frame declares a sample rate of 0 Hz")
+    if count == 0:
+        raise ValueError("burst frame declares no samples")
     expected = _HEADER.size + 2 * count
     if len(frame) != expected:
         raise ValueError(f"burst frame declares {count} samples, needs {expected} bytes")
