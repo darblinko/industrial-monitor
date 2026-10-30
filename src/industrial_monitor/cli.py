@@ -98,7 +98,17 @@ def cmd_ask(args: argparse.Namespace, settings: Settings) -> int:
     run = run_agent(args.question, *assistant)
     print(run.answer or f"(no answer: {run.stop_reason})")
     print(f"\ntools: {', '.join(call.name for call in run.tool_calls) or 'none'}")
+    print(f"plant state: {_state_label(args.state_file)}")
     return 0
+
+
+def _state_label(state_file: Path) -> str:
+    if state_file == DEMO_STATE_FILE:
+        return (
+            "recorded demo plant (bundled eval/plant-state.json); pass --state-file "
+            f"{DEFAULT_STATE_FILE} for the state written by monitor"
+        )
+    return str(state_file)
 
 
 def cmd_evaluate_assistant(args: argparse.Namespace, settings: Settings) -> int:

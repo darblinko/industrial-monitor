@@ -222,7 +222,13 @@ uv run industrial-monitor monitor
 uv run industrial-monitor simulate --interval 0.5
 ```
 
-`monitor` prints each state transition and writes the plant state to `results/scratch/plant-state.json`. Set `MQTT_HOST=127.0.0.1` to include the broker tests in `pytest`.
+`monitor` prints each state transition and writes the plant state to `results/scratch/plant-state.json`. `ask` reads the recorded demo state in `eval/plant-state.json` unless `--state-file` names another file, and its last output line names the state it answered from. To ask about the state the monitor wrote:
+
+```bash
+uv run industrial-monitor ask "Which machines are alarming?" --state-file results/scratch/plant-state.json
+```
+
+Set `MQTT_HOST=127.0.0.1` to include the broker tests in `pytest`.
 
 **Claude.** Set `ANTHROPIC_API_KEY` (see [.env.example](.env.example)) and add `--model claude` to `ask` or `evaluate-assistant`. The evaluation then writes `results/assistant-eval-claude.json`.
 

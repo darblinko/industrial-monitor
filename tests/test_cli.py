@@ -2,10 +2,13 @@ import json
 import os
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
 from industrial_monitor.cli import main
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_evaluate_detector_writes_results_file(tmp_path):
@@ -129,3 +132,12 @@ def test_ask_reads_an_explicit_corpus_directory(tmp_path, capsys):
     question = "What is the trip limit for pump vibration?"
     assert main(["ask", question, "--corpus-dir", str(corpus)]) == 0
     assert "[TM-1]" in capsys.readouterr().out
+
+
+def test_ask_names_the_plant_state_it_answered_from(tmp_path, capsys):
+    assert main(["ask", "Is pump 1 running normally?"]) == 0
+    assert "plant state: recorded demo plant" in capsys.readouterr().out
+    state_file = tmp_path / "live.json"
+    state_file.write_text((ROOT / "eval" / "plant-state.json").read_text())
+    assert main(["ask", "Is pump 1 running normally?", "--state-file", str(state_file)]) == 0
+    assert f"plant state: {state_file}" in capsys.readouterr().out
