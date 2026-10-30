@@ -3,6 +3,8 @@ import threading
 
 import paho.mqtt.client as mqtt
 import pytest
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.reasoncodes import ReasonCode
 
 from industrial_monitor.mqtt_bus import MqttBus
 
@@ -33,6 +35,33 @@ def test_a_failing_handler_is_logged_and_does_not_stop_dispatch(caplog):
     bus._on_message(None, None, message)
     assert received == [b"x"]
     assert "handler for t failed" in caplog.text
+
+
+def _bus_with_acknowledged_subscriptions(monkeypatch, reason_codes):
+    bus = MqttBus("localhost", 1883)
+    mids = iter(range(1, 100))
+    monkeypatch.setattr(
+        bus._client, "subscribe", lambda pattern, qos: (mqtt.MQTT_ERR_SUCCESS, next(mids))
+    )
+    bus._connected = True
+    for pattern in reason_codes:
+        bus.subscribe(pattern, lambda topic, payload: None)
+    for mid, code in enumerate(reason_codes.values(), start=1):
+        bus._on_subscribe(None, None, mid, [ReasonCode(PacketTypes.SUBACK, identifier=code)], None)
+    return bus
+
+
+def test_a_rejected_subscription_fails_the_wait_with_its_topic_and_reason(monkeypatch):
+    bus = _bus_with_acknowledged_subscriptions(
+        monkeypatch, {"plant/demo/+/rawv2": 0x01, "plant/demo/+/vibration": 0x87}
+    )
+    with pytest.raises(ConnectionError, match=r"plant/demo/\+/vibration: Not authorized"):
+        bus.wait_for_subscriptions(timeout_s=0.1)
+
+
+def test_granted_subscriptions_pass_the_wait(monkeypatch):
+    bus = _bus_with_acknowledged_subscriptions(monkeypatch, {"a/+": 0x01, "b/#": 0x00})
+    bus.wait_for_subscriptions(timeout_s=0.1)
 
 
 @pytest.mark.broker

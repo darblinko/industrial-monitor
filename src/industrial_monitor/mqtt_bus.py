@@ -25,7 +25,8 @@ class MqttBus:
         self._client.on_subscribe = self._on_subscribe
         self._state = threading.Condition()
         self._subscriptions: list[tuple[str, Handler]] = []
-        self._pending_subscriptions: set[int] = set()
+        self._pending_subscriptions: dict[int, str] = {}
+        self._rejected_subscriptions: dict[str, str] = {}
         self._connected = False
         self._unacknowledged: list[mqtt.MQTTMessageInfo] = []
 
@@ -68,7 +69,8 @@ class MqttBus:
         result, mid = self._client.subscribe(pattern, qos=QOS)
         if result != mqtt.MQTT_ERR_SUCCESS:
             raise ConnectionError(f"subscribe to {pattern} failed: {mqtt.error_string(result)}")
-        self._pending_subscriptions.add(mid)
+        self._pending_subscriptions[mid] = pattern
+        self._rejected_subscriptions.pop(pattern, None)
 
     def _on_connect(self, client, userdata, flags, reason_code, properties) -> None:
         if reason_code.is_failure:
@@ -83,11 +85,12 @@ class MqttBus:
             self._state.notify_all()
 
     def _on_subscribe(self, client, userdata, mid, reason_codes, properties) -> None:
-        for code in reason_codes:
-            if code.is_failure:
-                logger.error("broker rejected subscription %s: %s", mid, code)
         with self._state:
-            self._pending_subscriptions.discard(mid)
+            pattern = self._pending_subscriptions.pop(mid, None)
+            for code in reason_codes:
+                if code.is_failure:
+                    logger.error("broker rejected subscription to %s: %s", pattern, code)
+                    self._rejected_subscriptions[str(pattern)] = str(code)
             self._state.notify_all()
 
     def subscribe(self, pattern: str, handler: Handler) -> None:
@@ -97,9 +100,13 @@ class MqttBus:
                 self._request(pattern)
 
     def wait_for_subscriptions(self, timeout_s: float = 5.0) -> None:
+        """Return once the broker granted every subscription; raise if any was rejected."""
         with self._state:
             if not self._state.wait_for(lambda: not self._pending_subscriptions, timeout_s):
                 raise TimeoutError("broker did not acknowledge every subscription")
+            if self._rejected_subscriptions:
+                rejected = ", ".join(f"{p}: {r}" for p, r in self._rejected_subscriptions.items())
+                raise ConnectionError(f"broker rejected subscriptions: {rejected}")
 
     def publish(self, topic: str, payload: bytes) -> None:
         info = self._client.publish(topic, payload, qos=QOS)
