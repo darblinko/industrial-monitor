@@ -38,27 +38,40 @@ def test_demo_prints_machine_states(capsys):
 
 @pytest.mark.broker
 @pytest.mark.skipif("MQTT_HOST" not in os.environ, reason="set MQTT_HOST to run broker tests")
-def test_monitor_tracks_the_simulated_plant_through_the_broker(tmp_path, monkeypatch):
+def test_monitor_tracks_the_simulated_plant_through_the_broker(tmp_path, monkeypatch, capsys):
+    from industrial_monitor.demo import DEMO_PLANS, DEMO_WINDOWS, run_demo
+
     monkeypatch.setenv("SITE", "cli-test")
     state_file = tmp_path / "state.json"
     monitor = threading.Thread(
-        target=main, args=(["monitor", "--duration", "20", "--state-file", str(state_file)],)
+        target=main, args=(["monitor", "--duration", "30", "--state-file", str(state_file)],)
     )
     monitor.start()
     time.sleep(1.0)
-    assert main(["simulate", "--windows", "45", "--interval", "0.02"]) == 0
-    deadline = time.monotonic() + 15
+    assert main(["simulate", "--interval", "0.02"]) == 0
+    deadline = time.monotonic() + 25
     statuses = []
     while time.monotonic() < deadline:
         if state_file.exists():
             statuses = json.loads(state_file.read_text())
-            if statuses and all(s["windows"] == 45 for s in statuses):
+            if statuses and all(s["windows"] == DEMO_WINDOWS for s in statuses):
                 break
         time.sleep(0.2)
     monitor.join()
-    assert len(statuses) == 6
-    assert {s["windows"] for s in statuses} == {45}
-    assert {s["state"] for s in statuses} <= {"normal", "alarm"}
+    transitions = capsys.readouterr().out
+
+    assert statuses == run_demo().snapshot()
+    alarms = {s["machine_id"]: s["hypothesis"] for s in statuses if s["state"] == "alarm"}
+    assert alarms == {machine: plan.fault for machine, plan in DEMO_PLANS.items()}
+    for machine, plan in DEMO_PLANS.items():
+        assert f"{machine} normal to alarm ({plan.fault})" in transitions
+
+    question = "Why is pump 3 alarming and what do I check?"
+    assert main(["ask", question, "--state-file", str(state_file)]) == 0
+    answer = capsys.readouterr().out
+    assert "[status:pump-3]" in answer
+    assert "bearing wear" in answer
+    assert f"plant state: {state_file}" in answer
 
 
 def test_scan_ble_explains_the_missing_extra(monkeypatch, capsys):
