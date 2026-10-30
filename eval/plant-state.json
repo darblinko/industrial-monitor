@@ -7,7 +7,7 @@
     "alarm_since_window": null,
     "window": 159,
     "windows": 160,
-    "threshold": 2.55,
+    "threshold": 2.6,
     "channel_z": {
       "amp_1x_g": -0.43,
       "bearing_envelope": 0.01,
@@ -30,7 +30,7 @@
     "alarm_since_window": null,
     "window": 159,
     "windows": 160,
-    "threshold": 2.55,
+    "threshold": 2.6,
     "channel_z": {
       "amp_1x_g": 0.42,
       "bearing_envelope": 0.67,
@@ -53,7 +53,7 @@
     "alarm_since_window": 71,
     "window": 159,
     "windows": 160,
-    "threshold": 2.55,
+    "threshold": 2.6,
     "channel_z": {
       "amp_1x_g": -1.32,
       "bearing_envelope": 19.21,
@@ -76,7 +76,7 @@
     "alarm_since_window": 92,
     "window": 159,
     "windows": 160,
-    "threshold": 2.55,
+    "threshold": 2.6,
     "channel_z": {
       "amp_1x_g": 0.69,
       "bearing_envelope": 0.73,
@@ -99,7 +99,7 @@
     "alarm_since_window": null,
     "window": 159,
     "windows": 160,
-    "threshold": 2.55,
+    "threshold": 2.6,
     "channel_z": {
       "amp_1x_g": -0.05,
       "bearing_envelope": -0.39,
@@ -122,7 +122,7 @@
     "alarm_since_window": 90,
     "window": 159,
     "windows": 160,
-    "threshold": 2.55,
+    "threshold": 2.6,
     "channel_z": {
       "amp_1x_g": 10.7,
       "bearing_envelope": 1.67,

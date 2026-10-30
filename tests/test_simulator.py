@@ -62,6 +62,13 @@ def test_evaluation_plant_assigns_each_fault_to_the_requested_number_of_machines
     assert all(plan.onset_window >= 60 for _, plan in machines if plan.fault != "none")
 
 
+def test_evaluation_plant_balances_equipment_within_every_fault_class():
+    machines = evaluation_plant(machines_per_fault=4, baseline_windows=40, seed=9)
+    for fault in ("none", "imbalance", "bearing_wear", "temperature_drift"):
+        equipment = [spec.equipment for spec, plan in machines if plan.fault == fault]
+        assert sorted(equipment) == sorted([PUMP.equipment] * 2 + [FLEET["fan-1"].equipment] * 2)
+
+
 def test_plant_messages_interleave_machines_window_by_window():
     plant = [(PUMP, FaultPlan("none", 0, 1)), (FLEET["fan-1"], FaultPlan("none", 0, 1))]
     windows = list(plant_messages(plant, windows=3, seed=4, site="s"))

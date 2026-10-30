@@ -11,6 +11,7 @@ from industrial_monitor.landing import (
     score_timeline,
     spectrum_charts,
 )
+from industrial_monitor.settings import CALIBRATED_THRESHOLD
 
 ROOT = Path(__file__).resolve().parents[1]
 DETECTION = json.loads((ROOT / "results" / "detection.json").read_text())
@@ -69,7 +70,7 @@ def test_score_timeline_follows_the_anomaly_topic_after_the_baseline():
     assert timeline["x"][-1] == "49"
     names = [series["name"] for series in timeline["series"]]
     assert names[-1].startswith("threshold")
-    assert set(timeline["series"][-1]["values"]) == {2.55}
+    assert set(timeline["series"][-1]["values"]) == {CALIBRATED_THRESHOLD}
 
 
 def test_assistant_chart_reports_the_summary_metrics():

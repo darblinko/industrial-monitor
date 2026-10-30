@@ -100,13 +100,18 @@ def _variant(base: MachineSpec, number: int, rng: np.random.Generator) -> Machin
 def evaluation_plant(
     machines_per_fault: int, baseline_windows: int, seed: int, test_windows: int = 200
 ) -> list[tuple[MachineSpec, FaultPlan]]:
-    """Varied pumps and fans, each fault class on the same number of machines."""
+    """Varied pumps and fans, each fault class on the same number of machines.
+
+    Equipment alternates within each fault class, so every class has pumps and fans and
+    equipment type is not a proxy for the fault.
+    """
     rng = np.random.default_rng(seed)
     templates = (FLEET["pump-1"], FLEET["fan-1"])
     plant = []
     for number in range(1, len(FAULTS) * machines_per_fault + 1):
         fault = FAULTS[(number - 1) % len(FAULTS)]
-        spec = _variant(templates[number % 2], number, rng)
+        occurrence = (number - 1) // len(FAULTS)
+        spec = _variant(templates[occurrence % 2], number, rng)
         onset = int(rng.integers(baseline_windows + 20, baseline_windows + 81))
         ramp = baseline_windows + test_windows - onset
         plant.append((spec, FaultPlan(fault, onset, ramp)))

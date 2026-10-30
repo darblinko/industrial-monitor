@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 # Calibrated by `industrial-monitor evaluate-detector`; recorded in results/detection.json.
-CALIBRATED_THRESHOLD = 2.55
+CALIBRATED_THRESHOLD = 2.6
 DEFAULT_MODEL = "claude-opus-5-5"
 
 
