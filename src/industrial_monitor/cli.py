@@ -19,12 +19,13 @@ from industrial_monitor.detection_eval import (
 from industrial_monitor.landing import build_landing_data
 from industrial_monitor.machines import FLEET
 from industrial_monitor.monitor import MonitorConfig, PlantMonitor, load_snapshot, save_snapshot
+from industrial_monitor.resources import data_path
 from industrial_monitor.settings import Settings
 
 DEFAULT_STATE_FILE = Path("results/scratch/plant-state.json")
-DEMO_STATE_FILE = Path("eval/plant-state.json")
-CORPUS_DIR = Path("corpus")
-GOLDEN_FILE = Path("eval/golden.jsonl")
+DEMO_STATE_FILE = data_path("eval/plant-state.json")
+CORPUS_DIR = data_path("corpus")
+GOLDEN_FILE = data_path("eval/golden.jsonl")
 
 
 def _write_json(path: Path, data: dict | list) -> None:
@@ -84,7 +85,7 @@ def _assistant(args: argparse.Namespace, settings: Settings):
         model = ClaudeModel(model=settings.claude_model)
     else:
         model = FakeModel()
-    toolbox = Toolbox(load_snapshot(args.state_file), BM25Index(load_corpus(CORPUS_DIR)))
+    toolbox = Toolbox(load_snapshot(args.state_file), BM25Index(load_corpus(args.corpus_dir)))
     return model, toolbox
 
 
@@ -106,7 +107,7 @@ def cmd_evaluate_assistant(args: argparse.Namespace, settings: Settings) -> int:
     assistant = _assistant(args, settings)
     if assistant is None:
         return 2
-    result = evaluate(*assistant, load_golden(GOLDEN_FILE))
+    result = evaluate(*assistant, load_golden(args.golden_file))
     output = args.output or Path(f"results/assistant-eval-{args.model}.json")
     _write_json(output, result)
     for metric, value in result["summary"].items():
@@ -229,8 +230,16 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("question")
         else:
             command.add_argument("--output", type=Path)
+            command.add_argument(
+                "--golden-file", type=Path, default=GOLDEN_FILE, help="default: bundled set"
+            )
         command.add_argument("--model", choices=("fake", "claude"), default="fake")
-        command.add_argument("--state-file", type=Path, default=DEMO_STATE_FILE)
+        command.add_argument(
+            "--state-file", type=Path, default=DEMO_STATE_FILE, help="default: demo plant state"
+        )
+        command.add_argument(
+            "--corpus-dir", type=Path, default=CORPUS_DIR, help="default: bundled manuals"
+        )
         command.set_defaults(handler=handler)
 
     simulate = commands.add_parser("simulate", help="publish the demo plant to the MQTT broker")

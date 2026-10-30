@@ -109,3 +109,23 @@ def test_export_landing_writes_chart_data(tmp_path):
     data = json.loads(output.read_text())
     assert data["meta"]["revision"] == "abc1234"
     assert "detection-by-fault" in {chart["name"] for chart in data["charts"]}
+
+
+def test_assistant_commands_run_outside_the_checkout(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    assert main(["ask", "Why is pump 3 alarming and what do I check?"]) == 0
+    assert "[status:pump-3]" in capsys.readouterr().out
+    output = tmp_path / "assistant.json"
+    assert main(["evaluate-assistant", "--output", str(output)]) == 0
+    assert json.loads(output.read_text())["summary"]["questions"] == 20
+
+
+def test_ask_reads_an_explicit_corpus_directory(tmp_path, capsys):
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "manual.md").write_text(
+        "# Test manual\n\n## [TM-1] Trip limit\n\nThe trip limit for pump vibration is 9.9 mm/s.\n"
+    )
+    question = "What is the trip limit for pump vibration?"
+    assert main(["ask", question, "--corpus-dir", str(corpus)]) == 0
+    assert "[TM-1]" in capsys.readouterr().out

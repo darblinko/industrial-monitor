@@ -191,6 +191,8 @@ uv run industrial-monitor demo
 uv run industrial-monitor ask "Why is pump 3 alarming and what do I check?"
 ```
 
+`ask` and `evaluate-assistant` read the manual corpus, the golden set and the demo plant state from the package, so they run from any directory and from an installed wheel; `--corpus-dir`, `--golden-file` and `--state-file` select other inputs.
+
 `demo` replays 160 windows of the six-machine plant in process and prints the final states:
 
 ```text

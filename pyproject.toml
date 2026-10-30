@@ -32,6 +32,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/industrial_monitor"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"corpus" = "industrial_monitor/_data/corpus"
+"eval" = "industrial_monitor/_data/eval"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["broker: needs a running MQTT broker at MQTT_HOST"]
