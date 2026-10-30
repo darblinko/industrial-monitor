@@ -23,8 +23,8 @@
       <p class="lede">A reference pipeline for condition monitoring of pumps and fans. Sensor messages in the Ruuvi RAWv2 format travel over MQTT to an FFT-based anomaly detector, and a maintenance assistant answers alarm questions with citations to a manual corpus and to the live plant state.</p>
       <dl class="record">
         <div><dt>Repository</dt><dd>darblinko/industrial-monitor</dd></div>
-        <div><dt>Revision</dt><dd><code>e60ef74</code></dd></div>
-        <div><dt>Measured</dt><dd>2026-10-28</dd></div>
+        <div><dt>Revision</dt><dd><code>317ac05</code></dd></div>
+        <div><dt>Measured</dt><dd>2026-10-30</dd></div>
         <div><dt>License</dt><dd>Apache-2.0</dd></div>
       </dl>
       <figure class="chart" data-chart="headline"></figure>
@@ -33,7 +33,7 @@
     <section>
       <h2>Problem</h2>
       <p>A vibration alarm reports that a number crossed a limit. The technician still needs the fault class, the evidence behind it and the procedure to follow. Two measurements decide whether such a system is usable: the share of fault windows the detector catches at a fixed false-alarm budget, and whether the assistant's answers cite passages that support them.</p>
-      <p>The false-alarm budget depends on the alarm rule. At the same z-score threshold of 2.55, alarming on every window above the threshold raised false alarms on 5.16% of healthy windows. Requiring 2 of 3 consecutive windows lowered that to 0.86%.</p>
+      <p>The false-alarm budget depends on the alarm rule. At the same z-score threshold of 2.6, alarming on every window above the threshold raised false alarms on 5.66% of healthy windows. Requiring 2 of 3 consecutive windows lowered that to 0.93%.</p>
       <aside class="note">
         <p>False-alarm rates: <code>results/detection.json</code>, <code>modes.per_window</code> and <code>modes.two_of_three</code>, 1,395 healthy windows on the held-out plant (seed 202).</p>
       </aside>
@@ -69,10 +69,10 @@ flowchart TB
 
     <section>
       <h2>Measured results</h2>
-      <p>The detector was evaluated on two simulated plants of 16 machines each: four healthy and four per fault class, pumps and fans with varied running amplitude, noise and base temperature. The threshold was calibrated on the development plant (seed 101) to the lowest value with at most 1% false alarms under the 2 of 3 rule, then frozen at 2.55 and measured on the held-out plant (seed 202), which has different machines, fault onsets and noise. The held-out plant contributed 1,395 healthy and 1,805 fault windows after the 40-window baselines.</p>
+      <p>The detector was evaluated on two simulated plants of 16 machines each: four healthy and four per fault class, two pumps and two fans in each, with varied running amplitude, noise and base temperature. The threshold was calibrated on the development plant (seed 101) to the lowest value with at most 1% false alarms under the 2 of 3 rule, then frozen at 2.6 and measured on the held-out plant (seed 202), which has different machines, fault onsets and noise. The held-out plant contributed 1,395 healthy and 1,805 fault windows after the 40-window baselines.</p>
       <figure class="chart" data-chart="detection-by-fault"></figure>
       <figure class="chart" data-chart="false-alarm-rate"></figure>
-      <p>Imbalance is the weak class: 38.6% of imbalance windows below severity 0.25 are detected. In that range the simulated 1x amplitude grows by a factor of 1.15 to 1.75. Inference: this overlaps the healthy load variation, which the simulator draws from a lognormal factor with sigma 0.15.</p>
+      <p>Imbalance is the weak class: 37.0% of imbalance windows below severity 0.25 are detected. In that range the simulated 1x amplitude grows by a factor of 1.15 to 1.75. Inference: this overlaps the healthy load variation, which the simulator draws from a lognormal factor with sigma 0.15.</p>
       <figure class="chart" data-chart="detection-by-severity"></figure>
       <figure class="chart" data-chart="threshold-sweep"></figure>
       <h3>Maintenance assistant</h3>
@@ -99,7 +99,7 @@ uv run industrial-monitor ask "Why is pump 3 alarming and what do I check?"</cod
 uv run industrial-monitor evaluate-assistant
 uv run industrial-monitor export-landing</code></pre></li>
       </ol>
-      <p>The MQTT path needs a broker: <code>docker compose up -d</code> starts Mosquitto on 127.0.0.1:1883. Run <code>uv run industrial-monitor monitor</code> in one terminal and <code>uv run industrial-monitor simulate</code> in another. A Claude run needs <code>ANTHROPIC_API_KEY</code> and the flag <code>--model claude</code> on <code>ask</code> or <code>evaluate-assistant</code>.</p>
+      <p>The MQTT path needs a broker: <code>docker compose up -d</code> starts Mosquitto on 127.0.0.1:1883. Run <code>uv run industrial-monitor monitor</code> in one terminal and <code>uv run industrial-monitor simulate</code> in another. <code>ask</code> reads the recorded demo state unless <code>--state-file results/scratch/plant-state.json</code> selects the state the monitor wrote. A Claude run needs <code>ANTHROPIC_API_KEY</code> and the flag <code>--model claude</code> on <code>ask</code> or <code>evaluate-assistant</code>.</p>
       <aside class="note">
         <p>Steps 1 to 4 need no broker, sensor or API key.</p>
       </aside>
@@ -111,9 +111,9 @@ uv run industrial-monitor export-landing</code></pre></li>
         <li>All sensor data is simulated. No field data from a real pump or fan was used.</li>
         <li>The manual corpus is synthetic and written for this project. RP-1 and RF-1 are not real products, and their limits are illustrative.</li>
         <li>A RAWv2 advertisement carries one acceleration sample per axis. The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real Ruuvi tags supply the housing temperature only. A RAWv2 message updates the stored temperature; detection advances only on vibration bursts, so a machine that receives RAWv2 from a tag and no bursts from another source stays in the learning state.</li>
-        <li>Alarming on every window above the threshold gives 5.16% false alarms and misses the 1% target. The 2 of 3 rule is required to meet it.</li>
+        <li>Alarming on every window above the threshold gives 5.66% false alarms and misses the 1% target. The 2 of 3 rule is required to meet it.</li>
         <li>The 2 of 3 rule counts exceedances on any channel, so two unrelated single-window exceedances raise an alarm, as at pump 3 windows 59 to 60.</li>
-        <li>Imbalance below severity 0.25 is detected in 38.6% of windows, and the median imbalance alarm delay is 12 windows.</li>
+        <li>Imbalance below severity 0.25 is detected in 37.0% of windows, and the median imbalance alarm delay is 15.5 windows.</li>
         <li>The detection evaluation uses unquantized samples. The MQTT path quantizes samples to 1 mG, and its effect on the rates was not measured.</li>
         <li>The extractive model answered one of the three unanswerable questions (q20, pressure transmitter calibration) by citing RP-5.1, a passage on bearing housing temperature. Its decline rule (query term coverage below 0.5) was chosen after inspecting retrieval on the same golden set, so the decline rates are not held out.</li>
         <li>Docker Compose was validated with <code>docker compose config</code> only. The broker tests ran against a local Mosquitto 2.0.18. The BLE scanner was not tested against hardware.</li>
@@ -122,7 +122,7 @@ uv run industrial-monitor export-landing</code></pre></li>
   </main>
 
   <footer>
-    industrial-monitor. Apache-2.0. Figures generated from <code>docs/data.json</code> at <code>e60ef74</code>.
+    industrial-monitor. Apache-2.0. Figures generated from <code>docs/data.json</code> at <code>317ac05</code>.
   </footer>
 
   <script src="charts.js" defer></script>

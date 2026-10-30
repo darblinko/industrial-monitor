@@ -42,21 +42,21 @@ flowchart TB
 
 ### Detector
 
-The evaluation in [results/detection.json](results/detection.json) uses two simulated plants of 16 machines: four healthy and four per fault class, pumps and fans with varied running amplitude, noise and base temperature. The threshold was calibrated on the development plant (seed 101) to the lowest value with at most 1% false alarms under the 2 of 3 rule, which gave 2.55 with 0.78% false alarms on that plant. The threshold was then frozen and measured on the held-out plant (seed 202), which has different machines, fault onsets and noise: 1,395 healthy and 1,805 fault windows after the 40-window baselines. Reproduce with `uv run industrial-monitor evaluate-detector`.
+The evaluation in [results/detection.json](results/detection.json) uses two simulated plants of 16 machines: four healthy and four per fault class, two pumps and two fans in each, with varied running amplitude, noise and base temperature. The threshold was calibrated on the development plant (seed 101) to the lowest value with at most 1% false alarms under the 2 of 3 rule, which gave 2.6 with 0.99% false alarms on that plant. The threshold was then frozen and measured on the held-out plant (seed 202), which has different machines, fault onsets and noise: 1,395 healthy and 1,805 fault windows after the 40-window baselines. Reproduce with `uv run industrial-monitor evaluate-detector`.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/detection-by-fault-dark.svg">
-  <img alt="Imbalance 86.5%, Bearing wear 99.3%, Temperature drift 98.5%, All faults 94.8%." src="docs/figures/detection-by-fault-light.svg" width="760">
+  <img alt="Imbalance 86.2%, Bearing wear 99.3%, Temperature drift 98.5%, All faults 94.7%." src="docs/figures/detection-by-fault-light.svg" width="760">
 </picture>
 
 <details><summary>Data table</summary>
 
 | Item | Value |
 |---|---|
-| Imbalance | 86.5% |
+| Imbalance | 86.2% |
 | Bearing wear | 99.3% |
 | Temperature drift | 98.5% |
-| All faults | 94.8% |
+| All faults | 94.7% |
 
 Source: `results/detection.json`
 
@@ -64,32 +64,32 @@ Source: `results/detection.json`
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/false-alarm-rate-dark.svg">
-  <img alt="Every window 5.16%, 2 of 3 windows 0.86%, against a target of 1%." src="docs/figures/false-alarm-rate-light.svg" width="760">
+  <img alt="Every window 5.66%, 2 of 3 windows 0.93%, against a target of 1%." src="docs/figures/false-alarm-rate-light.svg" width="760">
 </picture>
 
 <details><summary>Data table</summary>
 
 | Item | Value |
 |---|---|
-| Every window | 5.2% (fail) |
-| 2 of 3 windows | 0.86% (pass) |
+| Every window | 5.7% (fail) |
+| 2 of 3 windows | 0.93% (pass) |
 
 Source: `results/detection.json`
 
 </details>
 
-Alarming on every window above the same threshold raised the false-alarm rate from 0.86% to 5.16% for a detection rate of 95.6% instead of 94.8% ([results/detection.json](results/detection.json), `modes.per_window`). The persistence rule costs alarm delay: the median delay from fault onset to first alarm is 1 window for bearing wear, 2 for temperature drift and 12 for imbalance.
+Alarming on every window above the same threshold raised the false-alarm rate from 0.93% to 5.66% for a detection rate of 95.6% instead of 94.7% ([results/detection.json](results/detection.json), `modes.per_window`). The persistence rule costs alarm delay: the median delay from fault onset to first alarm is 1 window for bearing wear, 2 for temperature drift and 15.5 for imbalance.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/detection-by-severity-dark.svg">
-  <img alt="Imbalance below severity 0.25 is detected in 38.6% of windows; every other bin is at 93.0% or above." src="docs/figures/detection-by-severity-light.svg" width="760">
+  <img alt="Imbalance below severity 0.25 is detected in 37.0% of windows; every other bin is at 93.0% or above." src="docs/figures/detection-by-severity-light.svg" width="760">
 </picture>
 
 <details><summary>Data table</summary>
 
 |  | Imbalance | Bearing wear | Temperature drift |
 |---|---|---|---|
-| 0.05 to 0.25 | 38.6% | 96.5% | 93% |
+| 0.05 to 0.25 | 37% | 96.5% | 93% |
 | 0.25 to 0.45 | 98.4% | 100% | 100% |
 | 0.45 to 0.65 | 100% | 100% | 100% |
 | 0.65 to 0.85 | 100% | 100% | 100% |
@@ -101,30 +101,30 @@ Source: `results/detection.json`
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/threshold-sweep-dark.svg">
-  <img alt="From threshold 2.0 to 10.0 the detection rate falls from 96.9% to 57.7% and the false-alarm rate from 4.23% to 0.14%." src="docs/figures/threshold-sweep-light.svg" width="760">
+  <img alt="From threshold 2.0 to 10.0 the detection rate falls from 96.7% to 58.2% and the false-alarm rate from 5.66% to 0.14%." src="docs/figures/threshold-sweep-light.svg" width="760">
 </picture>
 
 <details><summary>Data table</summary>
 
 |  | Detection rate | False-alarm rate |
 |---|---|---|
-| 2.0 | 96.9% | 4.2% |
-| 2.5 | 95% | 0.86% |
-| 3.0 | 93.6% | 0.43% |
-| 3.5 | 91.7% | 0.29% |
-| 4.0 | 89.6% | 0.29% |
-| 4.5 | 87.3% | 0.29% |
-| 5.0 | 83.9% | 0.29% |
-| 5.5 | 80.9% | 0.29% |
-| 6.0 | 78.4% | 0.29% |
-| 6.5 | 74.8% | 0.29% |
-| 7.0 | 70.6% | 0.29% |
-| 7.5 | 67.8% | 0.29% |
-| 8.0 | 64.5% | 0.29% |
-| 8.5 | 62.5% | 0.29% |
-| 9.0 | 60.6% | 0.14% |
-| 9.5 | 58.6% | 0.14% |
-| 10.0 | 57.7% | 0.14% |
+| 2.0 | 96.7% | 5.7% |
+| 2.5 | 94.9% | 1.2% |
+| 3.0 | 93.4% | 0.43% |
+| 3.5 | 91.2% | 0.29% |
+| 4.0 | 90% | 0.29% |
+| 4.5 | 88% | 0.29% |
+| 5.0 | 84.7% | 0.29% |
+| 5.5 | 81.3% | 0.29% |
+| 6.0 | 78.3% | 0.29% |
+| 6.5 | 76.3% | 0.29% |
+| 7.0 | 72.4% | 0.29% |
+| 7.5 | 68.3% | 0.29% |
+| 8.0 | 65% | 0.14% |
+| 8.5 | 62.8% | 0.14% |
+| 9.0 | 61.1% | 0.14% |
+| 9.5 | 59.2% | 0.14% |
+| 10.0 | 58.2% | 0.14% |
 
 Source: `results/detection.json`
 
@@ -244,7 +244,7 @@ Set `MQTT_HOST=127.0.0.1` to include the broker tests in `pytest`.
 | [corpus/](corpus/) | Synthetic RP-1 pump manual, RF-1 fan manual and vibration field guide (30 passages) |
 | [eval/](eval/) | Golden question set and the demo plant state the assistant reads |
 | [results/](results/) | Detector and assistant evaluation outputs |
-| [tests/](tests/) | 121 pytest tests; the broker tests run only when `MQTT_HOST` is set |
+| [tests/](tests/) | 155 pytest tests; the 2 broker tests run only when `MQTT_HOST` is set |
 | [docs/](docs/) | Landing page, `data.json` and the README figures |
 | [tools/publish-kit/](tools/publish-kit/) | SVG figure renderer and the `docs/data.json` schema |
 | [docker-compose.yml](docker-compose.yml), [mosquitto/](mosquitto/) | Local Mosquitto broker |
@@ -255,7 +255,7 @@ Decisions:
 
 - **A median and MAD baseline per machine instead of a trained model.** No labeled field data exists for this project. A median and MAD baseline per machine needs only healthy windows and adapts to the 0.7 to 1.3 times variation in running amplitude across the evaluation plant's machines ([simulator.py](src/industrial_monitor/simulator.py)).
 - **Calibrate on one plant, measure on another.** The threshold is chosen on seed 101 and frozen before the seed 202 measurement, so the reported false-alarm rate is not fitted to the data it is reported on.
-- **Fault-specific channels before kurtosis.** On alarmed fault windows, the hypothesis matched the injected fault in 99.8% of imbalance windows, 99.8% of bearing wear windows and 100% of temperature drift windows ([results/detection.json](results/detection.json), `hypothesis_accuracy`).
+- **Fault-specific channels before kurtosis.** On alarmed fault windows, the hypothesis matched the injected fault in 99.8% of imbalance windows and 100% of bearing wear and temperature drift windows ([results/detection.json](results/detection.json), `hypothesis_accuracy`).
 - **BM25 instead of embeddings.** The corpus has 30 passages with exact identifiers and numbers; BM25 needs no model download or vector store.
 - **A manual tool loop instead of the SDK tool runner**, so the fake model and Claude share one loop and the evaluation records every tool call.
 
@@ -264,9 +264,9 @@ Limitations and negative results:
 - All sensor data is simulated ([signals.py](src/industrial_monitor/signals.py)). No field data from a real pump or fan was used.
 - The corpus is synthetic and was written for this project. RP-1 and RF-1 are not real products, and their limits are illustrative.
 - The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real Ruuvi tags supply the housing temperature only. A RAWv2 message updates the stored temperature; detection advances only on vibration bursts, so a machine that receives RAWv2 from a tag and no bursts from another source stays in the learning state.
-- Alarming on every window misses the 1% false-alarm target (5.16%). The 2 of 3 rule is required to meet it.
+- Alarming on every window misses the 1% false-alarm target (5.66%). The 2 of 3 rule is required to meet it.
 - The 2 of 3 rule counts exceedances on any channel. In the demo, a kurtosis exceedance at window 58 and a temperature exceedance at window 59 raised a false alarm on pump 3 at windows 59 to 60, ten windows before the fault onset ([docs/data.json](docs/data.json), chart `pump-3-scores`).
-- Imbalance below severity 0.25 is detected in 38.6% of windows. In that range the simulated 1x amplitude grows by a factor of 1.15 to 1.75; inference: this overlaps the healthy load variation, a lognormal factor with sigma 0.15.
+- Imbalance below severity 0.25 is detected in 37.0% of windows. In that range the simulated 1x amplitude grows by a factor of 1.15 to 1.75; inference: this overlaps the healthy load variation, a lognormal factor with sigma 0.15.
 - The detection evaluation uses unquantized samples. The MQTT path quantizes samples to 1 milli-g, and its effect on the rates was not measured.
 - Only the fake model was evaluated. Its decline rule (query term coverage below 0.5) was chosen after inspecting retrieval on the same golden set, so its decline rates are not held out.
 - Docker Compose was validated with `docker compose config` only. The broker tests ran against a local Mosquitto 2.0.18. The BLE scanner was not tested against hardware.
