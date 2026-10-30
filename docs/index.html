@@ -110,7 +110,7 @@ uv run industrial-monitor export-landing</code></pre></li>
       <ul>
         <li>All sensor data is simulated. No field data from a real pump or fan was used.</li>
         <li>The manual corpus is synthetic and written for this project. RP-1 and RF-1 are not real products, and their limits are illustrative.</li>
-        <li>A RAWv2 advertisement carries one acceleration sample per axis. The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real tags provide the temperature path only.</li>
+        <li>A RAWv2 advertisement carries one acceleration sample per axis. The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real Ruuvi tags supply the housing temperature only. A RAWv2 message updates the stored temperature; detection advances only on vibration bursts, so a machine that receives RAWv2 from a tag and no bursts from another source stays in the learning state.</li>
         <li>Alarming on every window above the threshold gives 5.16% false alarms and misses the 1% target. The 2 of 3 rule is required to meet it.</li>
         <li>The 2 of 3 rule counts exceedances on any channel, so two unrelated single-window exceedances raise an alarm, as at pump 3 windows 59 to 60.</li>
         <li>Imbalance below severity 0.25 is detected in 38.6% of windows, and the median imbalance alarm delay is 12 windows.</li>

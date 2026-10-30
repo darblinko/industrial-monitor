@@ -232,7 +232,7 @@ Set `MQTT_HOST=127.0.0.1` to include the broker tests in `pytest`.
 
 **Claude.** Set `ANTHROPIC_API_KEY` (see [.env.example](.env.example)) and add `--model claude` to `ask` or `evaluate-assistant`. The evaluation then writes `results/assistant-eval-claude.json`.
 
-**BLE.** `uv sync --extra ble`, then `uv run --extra ble industrial-monitor scan-ble --map <tag MAC>=pump-3` publishes RAWv2 from nearby tags for 30 seconds. Tags without a mapping publish as `tag-<mac>`.
+**BLE.** `uv sync --extra ble`, then `uv run --extra ble industrial-monitor scan-ble --map <tag MAC>=pump-3` publishes RAWv2 from nearby tags for 30 seconds. Tags without a mapping publish as `tag-<mac>`. The tags provide temperature only; the monitor scores a machine once vibration bursts also arrive on its `vibration` topic.
 
 ## Project layout
 
@@ -261,7 +261,7 @@ Limitations and negative results:
 
 - All sensor data is simulated ([signals.py](src/industrial_monitor/signals.py)). No field data from a real pump or fan was used.
 - The corpus is synthetic and was written for this project. RP-1 and RF-1 are not real products, and their limits are illustrative.
-- The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real Ruuvi tags provide the temperature path only.
+- The vibration burst frame is defined by this project; no Ruuvi firmware emits it. Real Ruuvi tags supply the housing temperature only. A RAWv2 message updates the stored temperature; detection advances only on vibration bursts, so a machine that receives RAWv2 from a tag and no bursts from another source stays in the learning state.
 - Alarming on every window misses the 1% false-alarm target (5.16%). The 2 of 3 rule is required to meet it.
 - The 2 of 3 rule counts exceedances on any channel. In the demo, a kurtosis exceedance at window 58 and a temperature exceedance at window 59 raised a false alarm on pump 3 at windows 59 to 60, ten windows before the fault onset ([docs/data.json](docs/data.json), chart `pump-3-scores`).
 - Imbalance below severity 0.25 is detected in 38.6% of windows. In that range the simulated 1x amplitude grows by a factor of 1.15 to 1.75; inference: this overlaps the healthy load variation, a lognormal factor with sigma 0.15.
