@@ -118,3 +118,11 @@ def test_invalid_bursts_are_rejected_without_entering_the_baseline():
     status = monitor.status("pump-3")
     assert status["state"] == "normal"
     assert status["windows"] == len(stream)
+
+
+def test_a_burst_with_an_empty_envelope_band_is_rejected_as_invalid():
+    bus, monitor, stream = _healthy_monitor(windows=1)
+    bus.publish(*stream[0][0])
+    bus.publish(*_burst_topic_and_payload(PUMP_3, 0, [0.0, 0.1] * 512))
+    assert monitor.rejected == {"invalid_features": 1}
+    assert monitor.status("pump-3")["windows"] == 0

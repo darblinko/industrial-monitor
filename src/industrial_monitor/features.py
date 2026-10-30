@@ -1,5 +1,6 @@
 """Windowed FFT features for one acceleration window."""
 
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -82,7 +83,8 @@ def _bearing_envelope_ratio(
     bpfo = spec.bearing.bpfo_order() * shaft_hz
     lines = sum(_band_peak(freqs, amplitude, k * bpfo)[1] for k in range(1, BEARING_HARMONICS + 1))
     floor = float(np.median(amplitude[(freqs >= 10.0) & (freqs <= 300.0)]))
-    return lines / floor
+    # A zero floor means no energy in the band; the detector rejects the non-finite ratio.
+    return lines / floor if floor > 0 else math.inf
 
 
 def extract_features(
