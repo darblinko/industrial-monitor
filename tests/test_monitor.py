@@ -126,3 +126,28 @@ def test_a_burst_with_an_empty_envelope_band_is_rejected_as_invalid():
     bus.publish(*_burst_topic_and_payload(PUMP_3, 0, [0.0, 0.1] * 512))
     assert monitor.rejected == {"invalid_features": 1}
     assert monitor.status("pump-3")["windows"] == 0
+
+
+def test_redelivered_bursts_are_counted_once():
+    bus, monitor, stream = _healthy_monitor(windows=CONFIG.baseline_windows + 1)
+    for messages in stream:
+        for topic, payload in messages:
+            bus.publish(topic, payload)
+            bus.publish(topic, payload)
+    assert monitor.status("pump-3")["windows"] == len(stream)
+    assert monitor.rejected == {"duplicate": len(stream)}
+
+
+def test_a_reused_sequence_with_new_samples_is_a_new_window():
+    import numpy as np
+
+    bus, monitor, stream = _healthy_monitor(windows=1)
+    bus.publish(*stream[0][0])
+    noise = np.random.default_rng(0).normal(0, 0.05, size=(3, 1024))
+    first = _burst_topic_and_payload(PUMP_3, 0, noise[0])
+    rolled_over = _burst_topic_and_payload(PUMP_3, 65535, noise[1])
+    after_restart = _burst_topic_and_payload(PUMP_3, 0, noise[2])
+    for message in (first, rolled_over, after_restart, first):
+        bus.publish(*message)
+    assert monitor.status("pump-3")["windows"] == 3
+    assert monitor.rejected == {"duplicate": 1}

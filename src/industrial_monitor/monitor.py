@@ -3,14 +3,21 @@
 Subscribes to plant/<site>/+/rawv2 and plant/<site>/+/vibration. Each vibration burst is one
 detector window; the housing temperature comes from the latest RAWv2 status of that sensor.
 Each window's state is published as JSON on plant/<site>/<machine>/anomaly.
+
+QoS 1 delivers at least once, so a burst can arrive twice. A burst whose payload is byte for
+byte identical to one of the last DUPLICATE_HISTORY scored bursts of that machine is rejected
+as a duplicate. The check compares whole payloads rather than sequence numbers, so a sequence
+that rolls over at 65,536 or restarts after a sensor reset still counts as a new window.
+Bursts are scored in arrival order; one delivered out of order is scored when it arrives.
 """
 
+import hashlib
 import json
 import logging
 import os
 import tempfile
-from collections import Counter
-from dataclasses import dataclass
+from collections import Counter, deque
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -26,6 +33,7 @@ logger = logging.getLogger(__name__)
 # At 1,344 Hz, 512 samples zero-padded 4 times give 0.66 Hz bins, the width of the fan's 1x
 # search band (16.5 Hz, plus or minus 2%); shorter bursts can leave that band without a bin.
 MIN_BURST_SAMPLES = 512
+DUPLICATE_HISTORY = 64
 
 
 @dataclass(frozen=True)
@@ -46,6 +54,7 @@ class _MachineState:
     assessment: Assessment | None = None
     alarm_since_window: int | None = None
     sequence: int | None = None
+    recent_bursts: deque[bytes] = field(default_factory=lambda: deque(maxlen=DUPLICATE_HISTORY))
 
 
 def burst_problem(burst: VibrationBurst, spec: MachineSpec) -> str | None:
@@ -109,6 +118,10 @@ class PlantMonitor:
         except ValueError:
             self._reject("burst_decode", topic)
             return
+        digest = hashlib.sha256(payload).digest()
+        if digest in state.recent_bursts:
+            self._reject("duplicate", topic)
+            return
         if state.temperature_c is None:
             self._reject("no_temperature", topic)
             return
@@ -122,6 +135,7 @@ class PlantMonitor:
         except ValueError:
             self._reject("invalid_features", topic)
             return
+        state.recent_bursts.append(digest)
         self._record(state, burst.sequence, features, assessment)
         anomaly_topic = f"plant/{self._config.site}/{state.spec.machine_id}/anomaly"
         self._bus.publish(anomaly_topic, json.dumps(self._snapshot(state)).encode())
